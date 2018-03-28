@@ -11,11 +11,15 @@ from skimage.feature import peak_local_max
 from skimage.transform import hough_circle
 
 
-def find_circle(image, hough_radii):
+def find_circle(edges, hough_radii):
+    """
+    Find the best circle to model the drop tip.
+    
+    
+    """
 
 
-
-    hough_res = hough_circle(image, hough_radii,full_output=True)
+    hough_res = hough_circle(edges, hough_radii, full_output=True)
 
     centers = []
     accums = []
@@ -28,19 +32,17 @@ def find_circle(image, hough_radii):
         accums.extend(h[peaks[:, 0], peaks[:, 1]])
         radii.extend([radius, radius])
 
-    #from skimage.draw import circle_perimeter
-    # Draw the detected edge (circle, largest accumulator)
     idx = np.argsort(accums)[::-1][0]
 
     center_x, center_y = centers[idx]
     radius = radii[idx]
 
 
-    center_x=center_x-hough_radii[-1]
-    center_y=center_y-hough_radii[-1]
-    tip=[center_y,center_x-radius]
+    center_x = center_x - hough_radii[-1]
+    center_y = center_y - hough_radii[-1]
+    tip = [center_y, center_x - radius]
 
-    return center_x,center_y,radius,tip
+    return center_x, center_y, radius,tip
 
 
 def theoretical_contour(image, lc, radius, tip):

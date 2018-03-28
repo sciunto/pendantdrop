@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 
 
 from skimage import io
-from skimage.draw import circle,circle_perimeter
-from skimage import feature, color
+from skimage.draw import circle, circle_perimeter
+from skimage import feature
 from skimage.transform import rotate
 
 
@@ -153,41 +153,35 @@ if __name__ == '__main__':
     
     center_x, center_y, radius, tip = find_circle(edges, hough_radii)
     
-    rr,cc = circle(center_x,center_y,radius-5)
-    image1[rr,cc] = 10
+    rr,cc = circle(center_x, center_y, radius-5)
+    image1[rr, cc] = 10
     
-    #radius=429
-    
-    edges = feature.canny(color.rgb2gray(image1), sigma=2.5)
+    image = edges
     
     Z_python=np.where(edges==True)[0]
     R_python=np.where(edges==True)[1]
     
     
     
-    
-    
-    
-    #
-    
     ###arbitrary first guess for gamma
-    gamma0=0.040
+    gamma0 = 0.040 # N/m
+    
     #####guess gravity angle
-    c_center=[center_y,center_x]
-    base_line=np.where(image1[image1.shape[0]-1,:]<5)[0]
-    base_center=[(base_line[-1]+base_line[0])/2,image1.shape[0]-1]
-    hyp=np.sqrt(abs(base_center[0]-tip[0])**2+abs(base_center[1]-tip[1])**2)
-    adj=image1.shape[0]-1-tip[1]
-    theta=-np.arccos(adj/hyp)*180/np.pi
+#    c_center = [center_y, center_x]
+#    base_line = np.where(image1[image1.shape[0]-1,:]<5)[0]
+#    base_center = [(base_line[-1]+base_line[0])/2,image1.shape[0]-1]
+#    hyp = np.sqrt(abs(base_center[0]-tip[0])**2+abs(base_center[1]-tip[1])**2)
+#    adj = image1.shape[0]-1-tip[1]
+#    theta = -np.arccos(adj/hyp) * 180 / np.pi
     
-    c_center=[center_y,center_x]
-    base_line=np.where(image1[image1.shape[0]-1,:]<5)[0]
-    base_center=[(base_line[-1]+base_line[0])/2,image1.shape[0]-1]
-    hyp=np.sqrt((base_center[0]-c_center[0])**2+(base_center[1]-c_center[1])**2)
-    adj=image1.shape[0]-1-c_center[1]
-    opp=abs(base_center[0]-c_center[0])
+    c_center = [center_y,center_x]
+    base_line = np.where(image1[image1.shape[0]-1,:]<5)[0]
+    base_center = [(base_line[-1]+base_line[0])/2,image1.shape[0]-1]
+    hyp = np.sqrt((base_center[0]-c_center[0])**2+(base_center[1]-c_center[1])**2)
+    adj = image1.shape[0]-1-c_center[1]
+    opp = abs(base_center[0]-c_center[0])
     
-    theta=np.arccos(adj/hyp)*180/np.pi
+    theta = np.arccos(adj/hyp) * 180 / np.pi
     
     if center_y>base_center[0] and theta>0:
         guess_tipy=(edges.shape[0]-1-tip[1])*np.tan(abs(theta)*np.pi/180)+base_center[0]
@@ -197,8 +191,8 @@ if __name__ == '__main__':
     #guess_tipx=Z[np.where(abs(np.array(R)-guess_tipy)==min(abs(np.array(R)-guess_tipy)))[0][0]]
     #guess_cy=base_center[0]
     
-    ind_min=np.where(abs(np.array(R_python)-guess_tipy)==min(abs(np.array(R_python)-guess_tipy)))[0][0]
-    guess_tipx=Z_python[ind_min]
+    ind_min = np.where(abs(np.array(R_python)-guess_tipy)==min(abs(np.array(R_python)-guess_tipy)))[0][0]
+    guess_tipx = Z_python[ind_min]
     #theta=-2.06
     
     tipx=tip[1]
@@ -224,22 +218,24 @@ if __name__ == '__main__':
     #initial_directions=[initial_gammas,initial_rotation_param]
     
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
-    res = minimize(error_f, variables, method='Powell',options={'direc':initial_directions,'maxiter':100,'xtol': 1e-3,'ftol':1e-2, 'disp': True})#,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
-    optimal_variables=res.x
+    res = minimize(error_f, variables, method='Powell',
+                   options={'direc':initial_directions,'maxiter':100,'xtol': 1e-3,'ftol':1e-2, 'disp': True})
+    #,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
+    optimal_variables = res.x
     
     #res = fmin_powell(error_f, variables, direc=initial_directions,maxiter=100)#'xtol': 1e-3,'ftol':1e-2, 'disp': True})#,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
     #optimal_variables=res
     
     
-    error,R_python,Z_python,R,Z,mini_inds,RMSd=young_laplace(optimal_variables)
+    error, R_python, Z_python, R, Z, mini_inds, RMSd = young_laplace(optimal_variables)
     #error,R_python,Z_python,R,Z,RMSd=young_laplace(optimal_variables)
-    image1b=rotate(image1,optimal_variables[1],center=base_center,resize=False)
+    image1b = rotate(image1,optimal_variables[1],center=base_center,resize=False)
     
     
-    center_yb,center_xb=rotate_lines([center_y],[center_x],tip,optimal_variables[1])
+    center_yb, center_xb = rotate_lines([center_y], [center_x], tip, optimal_variables[1])
     
-    center_yb=center_yb[0]
-    center_xb=center_xb[0]
+    center_yb = center_yb[0]
+    center_xb = center_xb[0]
     
     
     plt.figure()
