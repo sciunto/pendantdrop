@@ -45,12 +45,12 @@ def find_circle(edges, hough_radii):
     return center_x, center_y, radius,tip
 
 
-def theoretical_contour(image, lc, radius, tip):
+def theoretical_contour(image_shape, lc, radius, tip):
     calib=0.00124/400#400 pixel = 1.24mm
     r0=radius*calib
     r_st=r0/lc
 
-    Z0=image.shape[0]-tip[1]#image.shape[0]-50##Position de Z0 w/r x (coordonnée verticale)
+    Z0=image_shape[0]-tip[1]#image.shape[0]-50##Position de Z0 w/r x (coordonnée verticale)
     Zmax=Z0/lc*calib#maximum possible values of Z to be upgraded
     nPoints=Z0*2
     ds=Zmax/nPoints
@@ -92,7 +92,7 @@ def theoretical_contour(image, lc, radius, tip):
     variables[2][0]=(1-0.375*s**2)/r_st
     variables[3][0]=1/(2*r_st)*s**(2)*(1-(0.75+1/(12*r_st**2))*s**2)
     Zlocal=0
-    while Zlocal<image.shape[0]-1:
+    while Zlocal<image_shape[0]-1:
 #    while variables[3][-1]<Zmax:
         k1=deriv(variables)
         for i in range(nVar):

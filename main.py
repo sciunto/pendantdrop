@@ -33,7 +33,7 @@ from pendant_drop_functions import find_circle,\
 
 
 
-def young_laplace(variables):#,radius,R_python,Z_python):
+def young_laplace(variables, image_shape):#,radius,R_python,Z_python):
 
 
     #    gamma=variables[0]
@@ -68,7 +68,7 @@ def young_laplace(variables):#,radius,R_python,Z_python):
 
 #    print(radius)
 #    R,Z=theoretical_contour(image,lc,radius,tip)
-    R,Z,tak=theoretical_contour(image,lc,radius,tip)
+    R, Z, tak = theoretical_contour(image_shape, lc, radius, tip)
 
 
 #    R=R[tak:]
@@ -106,9 +106,9 @@ def young_laplace(variables):#,radius,R_python,Z_python):
 #    return ksi_z,R_python,Z_python,R,Z,RMSd
 
 
-def error_f(variables):
+def error_f(variables, image_shape):
     print(variables)
-    error,R_python,Z_python,R,Z,mini_inds,RMSd=young_laplace(variables)
+    error,R_python,Z_python,R,Z,mini_inds,RMSd = young_laplace(variables, image_shape)
 #    error,R_python,Z_python,R,Z,RMSd=young_laplace(variables)
     return RMSd
 
@@ -155,8 +155,7 @@ if __name__ == '__main__':
     
     rr,cc = circle(center_x, center_y, radius-5)
     image1[rr, cc] = 10
-    
-    image = edges
+
     
     Z_python=np.where(edges==True)[0]
     R_python=np.where(edges==True)[1]
@@ -218,7 +217,7 @@ if __name__ == '__main__':
     #initial_directions=[initial_gammas,initial_rotation_param]
     
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
-    res = minimize(error_f, variables, method='Powell',
+    res = minimize(error_f, variables, args=(edges.shape,), method='Powell',
                    options={'direc':initial_directions,'maxiter':100,'xtol': 1e-3,'ftol':1e-2, 'disp': True})
     #,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
     optimal_variables = res.x
@@ -227,7 +226,7 @@ if __name__ == '__main__':
     #optimal_variables=res
     
     
-    error, R_python, Z_python, R, Z, mini_inds, RMSd = young_laplace(optimal_variables)
+    error, R_python, Z_python, R, Z, mini_inds, RMSd = young_laplace(optimal_variables, edges.shape)
     #error,R_python,Z_python,R,Z,RMSd=young_laplace(optimal_variables)
     image1b = rotate(image1,optimal_variables[1],center=base_center,resize=False)
     
