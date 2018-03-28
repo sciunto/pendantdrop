@@ -71,22 +71,22 @@ R_python=np.where(edges==True)[1]
 def young_laplace(variables):#,radius,R_python,Z_python):
 
 
-#    gamma=variables[0]
+    #    gamma=variables[0]
 #    theta=variables[1][0]
 #    center_yb=variables[1][1]
 
     gamma=variables[0]
     theta=variables[1]
     center_y=variables[2]
-    
+
 #    base_center=[(base_line[-1]+base_line[0])/2,image1.shape[0]-1]
-    
+
 #    if center_y>base_center[0] and theta>0:
 #    if theta<0:
 #        guess_tipy=(image.shape[0]-1-tip[1])*np.tan(abs(theta)*np.pi/180)+base_center[0]
 #    else:
 #        guess_tipy=-(image.shape[0]-1-tip[1])*np.tan(abs(theta)*np.pi/180)+base_center[0]
-    
+
 #    center_y=583.5
 #    center_y=guess_tipy
 #    center_y=562
@@ -104,33 +104,33 @@ def young_laplace(variables):#,radius,R_python,Z_python):
 #    print(radius)
 #    R,Z=theoretical_contour(image,lc,radius,tip)
     R,Z,tak=theoretical_contour(image,lc,radius,tip)
-    
-    
-#    R=R[tak:]    
-#    Z=Z[tak:]    
+
+
+#    R=R[tak:]
+#    Z=Z[tak:]
 #    base_center=[0,Z[-1]]
     RPixImage=-np.flip(R,0)
     R=np.concatenate((RPixImage[1:],R),0)
     Z=np.concatenate((np.flip(Z[1:],0),Z),0)
 
 #    R,Z=rotate_lines(R,Z,base_center,theta)
-            
+
     ######rescales contour to the image axes
 #    R=np.array(R)*lc/calib+center_yb
     R=np.array(R)*lc/calib+center_y
-    Z=lc/calib*np.array(Z)+tip_x-1  
-     
+    Z=lc/calib*np.array(Z)+tip_x-1
+
     R,Z=rotate_lines(R,Z,base_center,theta)
 
-   
+
     aa=np.where(Z>max(Z_python))
 
     R=np.delete(R,aa[0])
     Z=np.delete(Z,aa[0])
-    
+
 
     ####calculate fit error w/r to python profile
-    
+
     python=[R_python,Z_python]
 
     ksi_z,kk,mini_inds,RMSd=error_calculation(R,Z,python)
@@ -139,7 +139,7 @@ def young_laplace(variables):#,radius,R_python,Z_python):
 #    ksi_z,kk,mini_inds,RMSd=error_calculation_2(R[tak:],Z[tak:],R_python,Z_python,center_y)
     return ksi_z,R_python,Z_python,R,Z,mini_inds,RMSd
 #    return ksi_z,R_python,Z_python,R,Z,RMSd
-    
+
 def error_f(variables):
     print(variables)
     error,R_python,Z_python,R,Z,mini_inds,RMSd=young_laplace(variables)
@@ -172,9 +172,9 @@ if center_y>base_center[0] and theta>0:
 else:
     guess_tipy=-(image.shape[0]-1-tip[1])*np.tan(abs(theta)*np.pi/180)+base_center[0]
 #guess_tipy=tip[0]
-#guess_tipx=Z[np.where(abs(np.array(R)-guess_tipy)==min(abs(np.array(R)-guess_tipy)))[0][0]]    
-#guess_cy=base_center[0]    
-    
+#guess_tipx=Z[np.where(abs(np.array(R)-guess_tipy)==min(abs(np.array(R)-guess_tipy)))[0][0]]
+#guess_cy=base_center[0]
+
 ind_min=np.where(abs(np.array(R_python)-guess_tipy)==min(abs(np.array(R_python)-guess_tipy)))[0][0]
 guess_tipx=Z_python[ind_min]
 #theta=-2.06
@@ -202,10 +202,10 @@ variables=[gamma0,theta,center_y]#,radius,guess_tipy]#,guess_tipx]#,guess_cy]#,g
 #initial_directions=[initial_gammas,initial_rotation_param]
 
 ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
-res = minimize(error_f, variables, method='Powell',options={'direc':initial_directions,'maxiter':100,'xtol': 1e-3,'ftol':1e-2, 'disp': True})#,options={'xtol': 1e-8, 'disp': True,'maxfev':100})    
+res = minimize(error_f, variables, method='Powell',options={'direc':initial_directions,'maxiter':100,'xtol': 1e-3,'ftol':1e-2, 'disp': True})#,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
 optimal_variables=res.x
 
-#res = fmin_powell(error_f, variables, direc=initial_directions,maxiter=100)#'xtol': 1e-3,'ftol':1e-2, 'disp': True})#,options={'xtol': 1e-8, 'disp': True,'maxfev':100})    
+#res = fmin_powell(error_f, variables, direc=initial_directions,maxiter=100)#'xtol': 1e-3,'ftol':1e-2, 'disp': True})#,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
 #optimal_variables=res
 
 
@@ -227,7 +227,7 @@ circle = plt.Circle((center_y, center_x), radius=radius, color='r', fill=False)
 ax.add_patch(circle)
 plt.plot(R_python,Z_python,'*g',markersize=1)
 plt.plot(R,Z,'*b',markersize=1)
-plt.plot([base_center[0],tip[0]],[base_center[1],tip[1]],'-y')  
+plt.plot([base_center[0],tip[0]],[base_center[1],tip[1]],'-y')
 
 #R_dist=[]
 #Z_dist=[]
