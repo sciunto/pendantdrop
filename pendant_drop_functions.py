@@ -232,7 +232,10 @@ def partial_ksi(theorique, python):
     return [python[1][z_inds[ind]], python[0][z_inds[ind]]], min(dist)
 
 
-def error_calculation(R, Z, python):
+def error_calculation(R, Z, R_python, Z_python):
+
+    python = (R_python, Z_python)
+
     ind_milieu = int(len(Z)/2)
 
     ksi_z = []

@@ -91,9 +91,8 @@ def young_laplace(variables, image_shape, radius, R_python, Z_python):
 
     ####calculate fit error w/r to python profile
 
-    python=[R_python,Z_python]
 
-    ksi_z, kk, mini_inds, RMSd = error_calculation(R, Z, python)
+    ksi_z, kk, mini_inds, RMSd = error_calculation(R, Z, R_python, Z_python)
 
     return ksi_z, R_python, Z_python, R, Z, mini_inds, RMSd
 
@@ -217,8 +216,7 @@ if __name__ == '__main__':
     #optimal_variables=res
 
 
-    error, R_python, Z_python, R, Z, mini_inds, RMSd = young_laplace(optimal_variables, edges.shape)
-    #error,R_python,Z_python,R,Z,RMSd=young_laplace(optimal_variables)
+    error, R_python, Z_python, R, Z, mini_inds, RMSd = young_laplace(optimal_variables, edges.shape, radius, R_python, Z_python)
     image1b = rotate(image1,optimal_variables[1],center=base_center,resize=False)
 
 
