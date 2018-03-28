@@ -27,15 +27,10 @@ from pendant_drop_functions import find_circle,\
                                    theoretical_contour,\
                                    rotate_lines,\
                                    partial_ksi,\
-                                   error_calculation,\
-                                   error_calculation_2
-
+                                   error_calculation
 
 
 from plus import load_image
-
-
-
 
 
 
@@ -84,17 +79,50 @@ def young_laplace(variables, image_shape, radius, R_python, Z_python):
 
 
 
-def error_f(variables, image_shape, radius, R_python, Z_python):
+def split_profile(R, Z):
+
+    # Assumption on bubble upward orientation
+    mask_left = R < R[Z.argmin()]
+    R_left = R[mask_left]
+    Z_left = Z[mask_left]
+    R_right = R[~mask_left]
+    Z_right = Z[~mask_left]
+    return R_left, Z_left, R_right, Z_right
+
+def error_calculation_interpolated(R, Z, R_python, Z_python):
+    """
+    Calculate the RMS for half profile.
+
+    Theoretical points are interpolated on experimental ones.
+
+
+    """
+    R_theo_interpolator = interp1d(Z, R, kind='linear', fill_value='extrapolate')
+    R_theo_interpolated = R_theo_interpolator(Z_python)
+    chi_squared = np.sum((R_theo_interpolated - R_python)**2)
+    RMSd = np.sqrt(chi_squared) / len(Z_python)
+    return RMSd
+
+
+def error_f(variables, image_shape, radius, R_python, Z_python, interpolate=True):
     print("variables:",  variables)
 
 
     R, Z = young_laplace(variables, image_shape, radius, R_python, Z_python)
-    ksi_z, kk, mini_inds, RMSd = error_calculation(R, Z, R_python, Z_python)
 
-    return RMSd
+    if interpolate:
+        R_left, Z_left, R_right, Z_right = split_profile(R, Z)
+        R_python_left, Z_python_left, R_python_right, Z_python_right = split_profile(R_python, Z_python)
 
+        e_left = error_calculation_interpolated(R_left, Z_left, R_python_left, Z_python_left)
+        e_right = error_calculation_interpolated(R_right, Z_right, R_python_right, Z_python_right)
 
-
+        RMSd = 0.5 * (e_left + e_right)
+        return RMSd
+    else:
+        # Jonas' version
+        ksi_z, kk, mini_inds, RMSd = error_calculation(R, Z, R_python, Z_python)
+        return RMSd
 
 
 if __name__ == '__main__':
@@ -133,12 +161,7 @@ if __name__ == '__main__':
     gamma0 = 0.040 # N/m
 
     #####guess gravity angle
-#    c_center = [center_y, center_x]
-#    base_line = np.where(image1[image1.shape[0]-1,:]<5)[0]
-#    base_center = [(base_line[-1]+base_line[0])/2,image1.shape[0]-1]
-#    hyp = np.sqrt(abs(base_center[0]-tip[0])**2+abs(base_center[1]-tip[1])**2)
-#    adj = image1.shape[0]-1-tip[1]
-#    theta = -np.arccos(adj/hyp) * 180 / np.pi
+
 
     c_center = [center_y,center_x]
     base_line = np.where(image1[image1.shape[0]-1,:]<5)[0]
@@ -153,13 +176,12 @@ if __name__ == '__main__':
         guess_tipy=(edges.shape[0]-1-tip[1])*np.tan(abs(theta)*np.pi/180)+base_center[0]
     else:
         guess_tipy=-(edges.shape[0]-1-tip[1])*np.tan(abs(theta)*np.pi/180)+base_center[0]
-    #guess_tipy=tip[0]
-    #guess_tipx=Z[np.where(abs(np.array(R)-guess_tipy)==min(abs(np.array(R)-guess_tipy)))[0][0]]
-    #guess_cy=base_center[0]
+
+
 
     ind_min = np.where(abs(np.array(R_python)-guess_tipy)==min(abs(np.array(R_python)-guess_tipy)))[0][0]
     guess_tipx = Z_python[ind_min]
-    #theta=-2.06
+
 
     tipx=tip[1]
     tipy=tip[0]
@@ -174,14 +196,8 @@ if __name__ == '__main__':
     initial_center_y=np.divide([1,1,-1,-1],10)#,-5,5,-1,1],10)
     #
     initial_directions=np.transpose(np.array([initial_gammas,initial_thetas,initial_center_y]))#,initial_radii,initial_center_yb]))#,initial_center_yb]))#,initial_center_xb]))
-    variables=[gamma0,theta,center_y]#,radius,guess_tipy]#,guess_tipx]#,guess_cy]#,guess_tipx]#,center_x]
+    variables=[gamma0,theta,center_y]
 
-    #rotation_param=[theta,center_y]
-    #variables=[gamma0,rotation_param]
-    #
-    #initial_gammas=np.array([-.002,.002,-.002,.002])
-    #initial_rotation_param=np.array([list([-1,1,-1,1]*1/radius),[1,1,-1,-1]])
-    #initial_directions=[initial_gammas,initial_rotation_param]
 
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
     res = minimize(error_f, variables,
@@ -213,4 +229,4 @@ if __name__ == '__main__':
     plt.plot(R_python, Z_python, '*g', markersize=1)
     plt.plot(R, Z, '*b', markersize=1)
     plt.plot([base_center[0], tip[0]], [base_center[1], tip[1]], '-y')
-
+    plt.show( )
