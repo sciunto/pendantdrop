@@ -13,9 +13,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-from skimage import io
-from skimage.draw import circle, circle_perimeter
-from skimage import feature
+
+
+
 from skimage.transform import rotate
 
 
@@ -32,6 +32,12 @@ from pendant_drop_functions import find_circle,\
 
 
 
+from plus import load_image
+
+
+
+
+
 
 def young_laplace(variables, image_shape, radius, R_python, Z_python):
 
@@ -39,17 +45,7 @@ def young_laplace(variables, image_shape, radius, R_python, Z_python):
     theta = variables[1]
     center_y = variables[2]
 
-#    base_center=[(base_line[-1]+base_line[0])/2,image1.shape[0]-1]
 
-#    if center_y>base_center[0] and theta>0:
-#    if theta<0:
-#        guess_tipy=(image.shape[0]-1-tip[1])*np.tan(abs(theta)*np.pi/180)+base_center[0]
-#    else:
-#        guess_tipy=-(image.shape[0]-1-tip[1])*np.tan(abs(theta)*np.pi/180)+base_center[0]
-
-#    center_y=583.5
-#    center_y=guess_tipy
-#    center_y=562
     tip_x = guess_tipx
 
     print(center_y)
@@ -57,36 +53,32 @@ def young_laplace(variables, image_shape, radius, R_python, Z_python):
     base_center = [center_y,center_x]
 #    base_center=[center_yb,tip_x]
 
-    calib = 0.00124/400  #400 pixel = 1.24mm
+    calib = 0.00124 / 400  #400 pixel = 1.24mm
     rho_g = 1000 * 9.81
     lc = np.sqrt(gamma / rho_g)  # We give capillary lengthy : may be given by the user later on
 
-#    print(radius)
-#    R,Z=theoretical_contour(image,lc,radius,tip)
-    R, Z, tak = theoretical_contour(image_shape, lc, radius, tip)
+
+    R, Z = theoretical_contour(image_shape, lc, radius, tip)
 
 
-#    R=R[tak:]
-#    Z=Z[tak:]
-#    base_center=[0,Z[-1]]
-    RPixImage=-np.flip(R,0)
-    R=np.concatenate((RPixImage[1:],R),0)
-    Z=np.concatenate((np.flip(Z[1:],0),Z),0)
-
-#    R,Z=rotate_lines(R,Z,base_center,theta)
-
-    ######rescales contour to the image axes
-#    R=np.array(R)*lc/calib+center_yb
-    R=np.array(R)*lc/calib+center_y
-    Z=lc/calib*np.array(Z)+tip_x-1
-
-    R,Z=rotate_lines(R,Z,base_center,theta)
+    # Symetrize the contour
+    RPixImage = -np.flip(R,0)
+    R = np.concatenate((RPixImage[1:], R), 0)
+    Z = np.concatenate((np.flip(Z[1:], 0), Z), 0)
 
 
-    aa=np.where(Z>max(Z_python))
 
-    R=np.delete(R,aa[0])
-    Z=np.delete(Z,aa[0])
+    # rescales contour to the image axes
+    R = np.array(R) * lc / calib + center_y
+    Z = lc / calib * np.array(Z) + tip_x - 1
+
+    # Rotate
+    R, Z = rotate_lines(R, Z, base_center, theta)
+
+
+    aa = np.where(Z>max(Z_python))
+    R = np.delete(R, aa[0])
+    Z = np.delete(Z, aa[0])
 
 
     ####calculate fit error w/r to python profile
@@ -103,28 +95,14 @@ def error_f(variables, image_shape, radius, R_python, Z_python):
     return RMSd
 
 
-def load_image(path, region=None):
-    """
-    Load an image.
 
-    Parameters
-    ----------
-    path : string
-        File path.
-    region : tuple, optional
-        Corner positions to crop the image.
-
-    """
-    image = io.imread(image_path, as_grey=True)
-
-    if region is not None:
-        image = image[region[0][0]:region[0][1],
-                      region[1][0]:region[1][1]]
-    return image
 
 
 if __name__ == '__main__':
 
+
+    from skimage import feature
+    from skimage.draw import circle, circle_perimeter
     image_path = 'uEye_Image_000827.bmp'
     zoom = ([100,1312], [800,1900])
 
@@ -138,6 +116,9 @@ if __name__ == '__main__':
     edges = feature.canny(image1, sigma=2.5)
 
     hough_radii = np.arange(418, 440)
+    Z_python = np.where(edges==True)[0]
+    R_python = np.where(edges==True)[1]
+
 
     center_x, center_y, radius, tip = find_circle(edges, hough_radii)
 
@@ -145,8 +126,7 @@ if __name__ == '__main__':
     image1[rr, cc] = 10
 
 
-    Z_python=np.where(edges==True)[0]
-    R_python=np.where(edges==True)[1]
+
 
 
 

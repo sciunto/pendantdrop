@@ -174,13 +174,13 @@ def theoretical_contour(image_shape, lc, radius, tip):
         for i in range(nVar):
             variables[i].append(variables[i][-1]+ds*(k1[i]+2*(k2[i]+k3[i])+k4[i]))
         Zlocal=lc/calib*variables[3][-1]+tip[1]#+ax.get_ylim()[1]
-#        Zlocal=lc/calib*variables[3][-1]+tip[1]-10
 
-    tak=len(R)
+
+
 
     R.extend(variables[0][:])
     Z.extend(variables[3][:])
-    return R,Z,tak
+    return R, Z
 
 
 
