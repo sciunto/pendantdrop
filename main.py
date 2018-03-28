@@ -115,29 +115,50 @@ def error_f(variables):
 
 
 
+def load_image(path, region=None):
+    """
+    Load an image.
+    
+    Parameters
+    ----------
+    path : string
+        File path.
+    region : tuple, optional
+        Corner positions to crop the image.
+    
+    """
+    image = io.imread(image_path, as_grey=True)
+
+    if region is not None:
+        image = image[region[0][0]:region[0][1],
+                      region[1][0]:region[1][1]]
+    return image
+
+
 if __name__ == '__main__':
 
     image_path = 'uEye_Image_000827.bmp'
+    zoom = ([100,1312], [800,1900])
+    
+    
+    
     #image_path = 'uEye_Image_002767.bmp'
     
-    image = io.imread(image_path, as_grey=True)
-    zoom = [[100,1312], [800,1900]]
     
-    image1=image[zoom[0][0]:zoom[0][1],zoom[1][0]:zoom[1][1]]
+    image1 = load_image(image_path, region=zoom)
     
-    edges = feature.canny(color.rgb2gray(image1), sigma=2.5)
-    image = edges
+    edges = feature.canny(image1, sigma=2.5)
     
     hough_radii = np.arange(418, 440)
     
-    center_x, center_y, radius, tip = find_circle(image, hough_radii)
+    center_x, center_y, radius, tip = find_circle(edges, hough_radii)
     
-    rr,cc=circle(center_x,center_y,radius-5)
-    image1[rr,cc]=10
+    rr,cc = circle(center_x,center_y,radius-5)
+    image1[rr,cc] = 10
     
     #radius=429
     
-    edges=feature.canny(color.rgb2gray(image1), sigma=2.5)
+    edges = feature.canny(color.rgb2gray(image1), sigma=2.5)
     
     Z_python=np.where(edges==True)[0]
     R_python=np.where(edges==True)[1]
@@ -169,9 +190,9 @@ if __name__ == '__main__':
     theta=np.arccos(adj/hyp)*180/np.pi
     
     if center_y>base_center[0] and theta>0:
-        guess_tipy=(image.shape[0]-1-tip[1])*np.tan(abs(theta)*np.pi/180)+base_center[0]
+        guess_tipy=(edges.shape[0]-1-tip[1])*np.tan(abs(theta)*np.pi/180)+base_center[0]
     else:
-        guess_tipy=-(image.shape[0]-1-tip[1])*np.tan(abs(theta)*np.pi/180)+base_center[0]
+        guess_tipy=-(edges.shape[0]-1-tip[1])*np.tan(abs(theta)*np.pi/180)+base_center[0]
     #guess_tipy=tip[0]
     #guess_tipx=Z[np.where(abs(np.array(R)-guess_tipy)==min(abs(np.array(R)-guess_tipy)))[0][0]]
     #guess_cy=base_center[0]
