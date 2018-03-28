@@ -7,6 +7,8 @@ Created on Mon Feb 19 17:03:15 2018
 import numpy as np
 import math
 
+
+from scipy.interpolate import interp1d
 from skimage.feature import peak_local_max
 from skimage.transform import hough_circle
 
@@ -258,5 +260,8 @@ def error_calculation(R, Z, R_python, Z_python):
     return np.sum(ksi_z), ksi_z, mini_inds, RMSd
 
 
-def error_calculation_2(R,Z,R_python,Z_python,guess_tipy):
-    pass
+def error_calculation_2(R, Z, R_python, Z_python):
+    R_theo_interpolator = interp1d(Z, R, kind='linear')
+    R_theo_interpolated = R_theo_interpolator(Z_python)
+    chi_squared = np.sum((R_theo_interpolated - R)**2)
+    RMSd = np.sqrt(chi_squared / len(Z_python))
