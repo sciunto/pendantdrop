@@ -7,11 +7,13 @@ Created on Mon Feb 19 17:03:15 2018
 import numpy as np
 import math
 
+from skimage.feature import peak_local_max
+from skimage.transform import hough_circle
 
-def find_circle(image,hough_radii):
 
-    from skimage.feature import peak_local_max
-    from skimage.transform import hough_circle
+def find_circle(image, hough_radii):
+
+
 
     hough_res = hough_circle(image, hough_radii,full_output=True)
 
@@ -41,7 +43,7 @@ def find_circle(image,hough_radii):
     return center_x,center_y,radius,tip
 
 
-def theoretical_contour(image,lc,radius,tip):
+def theoretical_contour(image, lc, radius, tip):
     calib=0.00124/400#400 pixel = 1.24mm
     r0=radius*calib
     r_st=r0/lc
