@@ -33,7 +33,7 @@ from pendant_drop_functions import find_circle,\
 
 
 
-def young_laplace(variables, image_shape):#,radius,R_python,Z_python):
+def young_laplace(variables, image_shape, radius, R_python, Z_python):
 
     gamma = variables[0]
     theta = variables[1]
@@ -98,9 +98,9 @@ def young_laplace(variables, image_shape):#,radius,R_python,Z_python):
     return ksi_z, R_python, Z_python, R, Z, mini_inds, RMSd
 
 
-def error_f(variables, image_shape):
+def error_f(variables, image_shape, radius, R_python, Z_python):
     print("variables:",  variables)
-    error,R_python,Z_python,R,Z,mini_inds,RMSd = young_laplace(variables, image_shape)
+    error, R_python, Z_python, R, Z, mini_inds, RMSd = young_laplace(variables, image_shape, radius, R_python, Z_python)
     return RMSd
 
 
@@ -206,7 +206,9 @@ if __name__ == '__main__':
     #initial_directions=[initial_gammas,initial_rotation_param]
 
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
-    res = minimize(error_f, variables, args=(edges.shape,), method='Powell',
+    res = minimize(error_f, variables,
+                   args=(edges.shape, radius, R_python, Z_python),
+                   method='Powell',
                    options={'direc':initial_directions,'maxiter':100,'xtol': 1e-3,'ftol':1e-2, 'disp': True})
     #,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
     optimal_variables = res.x
