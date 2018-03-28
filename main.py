@@ -80,18 +80,17 @@ def young_laplace(variables, image_shape, radius, R_python, Z_python):
     R = np.delete(R, aa[0])
     Z = np.delete(Z, aa[0])
 
+    return R, Z
 
-    ####calculate fit error w/r to python profile
-
-
-    ksi_z, kk, mini_inds, RMSd = error_calculation(R, Z, R_python, Z_python)
-
-    return ksi_z, R_python, Z_python, R, Z, mini_inds, RMSd
 
 
 def error_f(variables, image_shape, radius, R_python, Z_python):
     print("variables:",  variables)
-    error, R_python, Z_python, R, Z, mini_inds, RMSd = young_laplace(variables, image_shape, radius, R_python, Z_python)
+
+
+    R, Z = young_laplace(variables, image_shape, radius, R_python, Z_python)
+    ksi_z, kk, mini_inds, RMSd = error_calculation(R, Z, R_python, Z_python)
+
     return RMSd
 
 
@@ -196,7 +195,7 @@ if __name__ == '__main__':
     #optimal_variables=res
 
 
-    error, R_python, Z_python, R, Z, mini_inds, RMSd = young_laplace(optimal_variables, edges.shape, radius, R_python, Z_python)
+    R, Z = young_laplace(optimal_variables, edges.shape, radius, R_python, Z_python)
     image1b = rotate(image1,optimal_variables[1],center=base_center,resize=False)
 
 
@@ -208,26 +207,10 @@ if __name__ == '__main__':
 
     plt.figure()
     ax=plt.axes()
-    plt.imshow(image1,cmap='gray')
+    plt.imshow(image1, cmap='gray')
     circle = plt.Circle((center_y, center_x), radius=radius, color='r', fill=False)
     ax.add_patch(circle)
-    plt.plot(R_python,Z_python,'*g',markersize=1)
-    plt.plot(R,Z,'*b',markersize=1)
-    plt.plot([base_center[0],tip[0]],[base_center[1],tip[1]],'-y')
+    plt.plot(R_python, Z_python, '*g', markersize=1)
+    plt.plot(R, Z, '*b', markersize=1)
+    plt.plot([base_center[0], tip[0]], [base_center[1], tip[1]], '-y')
 
-    #R_dist=[]
-    #Z_dist=[]
-
-    #R_dist_l=[]
-    #Z_dist_l=[]
-    #R_dist_r=[]
-    #Z_dist_r=[]
-    #for i in range(len(mini_inds[0])):
-    ##    R_dist.append(mini_inds[i][1])
-    ##    Z_dist.append(mini_inds[i][0])
-    #    R_dist_l.append(mini_inds[0][i][0])
-    #    Z_dist_l.append(mini_inds[0][i][1])
-    #for i in range(len(mini_inds[1])):
-    #    R_dist_r.append(mini_inds[1][i][0])
-    #    Z_dist_r.append(mini_inds[1][i][1])
-    #plt.plot(R_dist,Z_dist,'*m',markersize=1)
