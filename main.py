@@ -23,7 +23,7 @@ from scipy.interpolate import interp1d
 from scipy.optimize import minimize
 from scipy.optimize import fmin_powell
 
-from drop.theory import theoretical_contour, rotate_lines
+from drop.theory import theoretical_contour, theoretical_contour2, rotate_lines
 from drop.edge import fit_circle_tip
 
 
@@ -34,6 +34,12 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges):
     center_y = variables[2]
 
 
+    calib = 0.00124 / 400  #400 pixel = 1.24mm
+    rho_g = 1000 * 9.81
+    lc = np.sqrt(gamma / rho_g)  # We give capillary lengthy : may be given by the user later on
+    r0 = radius * calib
+
+
     tip_x = guess_tipx
 
     print(center_y)
@@ -41,24 +47,23 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges):
     base_center = [center_y,center_x]
 #    base_center=[center_yb,tip_x]
 
-    calib = 0.00124 / 400  #400 pixel = 1.24mm
-    rho_g = 1000 * 9.81
-    lc = np.sqrt(gamma / rho_g)  # We give capillary lengthy : may be given by the user later on
 
 
-    R, Z = theoretical_contour(image_shape, lc, radius, tip)
+    R, Z = theoretical_contour2(image_shape, lc, r0, tip, calib)
 
+    # Cut
+    Z0 = image_shape[0] - tip[1]
+    Zmax = Z0 / lc * calib #maximum possible values of Z to be upgraded
+    R = R[Z < Zmax]
+    Z = Z[Z < Zmax]
 
     # Symetrize the contour
-    RPixImage = -np.flip(R,0)
-    R = np.concatenate((RPixImage[1:], R), 0)
-    Z = np.concatenate((np.flip(Z[1:], 0), Z), 0)
-
-
+    R = np.concatenate((-R, R))
+    Z = np.concatenate((Z, Z))
 
     # rescales contour to the image axes
-    R = np.array(R) * lc / calib + center_y
-    Z = lc / calib * np.array(Z) + tip_x - 1
+    R = R * lc / calib + center_y
+    Z = lc / calib * Z + tip_x - 1
 
     # Rotate
     R, Z = rotate_lines(R, Z, base_center, theta)
@@ -217,7 +222,7 @@ if __name__ == '__main__':
 
 
 
-
+    print('opt vars:', optimal_variables)
     center_yb, center_xb = rotate_lines([center_y], [center_x], tip, optimal_variables[1])
 
     center_yb = center_yb[0]
@@ -234,4 +239,4 @@ if __name__ == '__main__':
 
 
     plt.plot([base_center[0], tip[0]], [base_center[1], tip[1]], '-y')
-    #plt.show( )
+    plt.show( )
