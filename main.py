@@ -24,7 +24,7 @@ from scipy.optimize import minimize
 from scipy.optimize import fmin_powell
 
 from drop.theory import theoretical_contour, rotate_lines
-from drop.edge import find_circle
+from drop.edge import fit_circle_tip
 
 
 def young_laplace(variables, image_shape, radius, R_edges, Z_edges):
@@ -131,7 +131,8 @@ if __name__ == '__main__':
     from skimage.draw import circle, circle_perimeter
     image_path = 'uEye_Image_000827.bmp'
     zoom = ([100,1312], [800,1900])
-
+    # TODO: this parameter can be easely guessed.
+    hough_radii = np.arange(418, 440)
 
 
     #image_path = 'uEye_Image_002767.bmp'
@@ -141,9 +142,10 @@ if __name__ == '__main__':
 
     edges, R_edges, Z_edges = detect_edges(image1)
 
-    hough_radii = np.arange(418, 440)
-    center_x, center_y, radius, tip = find_circle(edges, hough_radii)
 
+    center_x, center_y, radius, tip = fit_circle_tip(image1.shape, R_edges, Z_edges, hough_radii)
+
+    # Display purpose only...
     rr,cc = circle(center_x, center_y, radius-5)
     image1[rr, cc] = 10
 
@@ -198,7 +200,11 @@ if __name__ == '__main__':
     res = minimize(error_f, variables,
                    args=(edges.shape, radius, R_edges, Z_edges),
                    method='Powell',
-                   options={'direc':initial_directions,'maxiter':100,'xtol': 1e-3,'ftol':1e-2, 'disp': True})
+                   options={'direc':initial_directions,
+                            'maxiter':100,
+                            'xtol': 1e-3,
+                            'ftol':1e-2,
+                            'disp': True})
     #,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
     optimal_variables = res.x
 
@@ -228,4 +234,4 @@ if __name__ == '__main__':
 
 
     plt.plot([base_center[0], tip[0]], [base_center[1], tip[1]], '-y')
-    plt.show( )
+    #plt.show( )

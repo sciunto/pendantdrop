@@ -11,9 +11,17 @@ from skimage.transform import hough_circle
 from skimage.feature import peak_local_max
 from skimage import measure
 
-def find_circle(edges, hough_radii):
+def _find_circle(edges, hough_radii):
     """
-    Find the best circle to model the drop tip.
+    Find the best circle to model points marked as `True`.
+
+    Parameters
+    ----------
+    edges : boolean image
+        Image containing the edges to fit.
+    hough_radii : tuple
+        Radii considered for the Hough transform
+
 
 
     """
@@ -42,12 +50,34 @@ def find_circle(edges, hough_radii):
     center_y = center_y - hough_radii[-1]
     tip = [center_y, center_x - radius]
 
-    return center_x, center_y, radius,tip
+    return center_x, center_y, radius, tip
+
+
+
+def fit_circle_tip(shape, R, Z, hough_radii):
+    """
+    Fit a circle with a Hough transform on the points between the equator
+    and the tip.
+
+    """
+    # Guess the maximum radius
+    max_possible_radius = .5 * (R.max() - R.min())
+    # Assume upward bubble orientation
+    mask = Z < Z[R.argmin()]
+    edges = np.full(shape, False, dtype=bool)
+    edges[Z[mask].astype(np.int), R[mask].astype(np.int)] = True
+
+    return _find_circle(edges, hough_radii)
 
 
 def detect_edges(image):
     """
-    detect the edge of the drop on the image.
+    Detect the edge of the drop on the image.
+
+    Parameters
+    ----------
+    image : ndarray
+        Grayscale image.
     """
     # Use the mean grayscale value of the image to get the contour.
     level = image.mean()
@@ -56,4 +86,4 @@ def detect_edges(image):
     # Make a binary image
     edges = np.full(image.shape, False, dtype=bool)
     edges[Z_edges.astype(np.int), R_edges.astype(np.int)] = True
-    return edges,  R_edges, Z_edges
+    return edges, R_edges, Z_edges
