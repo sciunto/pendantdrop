@@ -22,10 +22,7 @@ from drop.theory import rotate_lines, young_laplace
 from drop.edge import fit_circle_tip
 
 
-
-
-
-from drop.optimization import squared_distance, error_f
+from drop.optimization import error_f
 
 
 
