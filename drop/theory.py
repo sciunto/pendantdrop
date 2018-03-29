@@ -7,44 +7,7 @@ Created on Mon Feb 19 17:03:15 2018
 import numpy as np
 import math
 
-
 from scipy.interpolate import interp1d
-from skimage.feature import peak_local_max
-from skimage.transform import hough_circle
-
-
-def find_circle(edges, hough_radii):
-    """
-    Find the best circle to model the drop tip.
-
-
-    """
-
-
-    hough_res = hough_circle(edges, hough_radii, full_output=True)
-
-    centers = []
-    accums = []
-    radii = []
-
-    for radius, h in zip(hough_radii, hough_res):
-        # For each radius, extract two circles
-        peaks = peak_local_max(h, num_peaks=2)
-        centers.extend(peaks)
-        accums.extend(h[peaks[:, 0], peaks[:, 1]])
-        radii.extend([radius, radius])
-
-    idx = np.argsort(accums)[::-1][0]
-
-    center_x, center_y = centers[idx]
-    radius = radii[idx]
-
-
-    center_x = center_x - hough_radii[-1]
-    center_y = center_y - hough_radii[-1]
-    tip = [center_y, center_x - radius]
-
-    return center_x, center_y, radius,tip
 
 
 def old_theoretical_contour(image_shape, lc, radius, tip):

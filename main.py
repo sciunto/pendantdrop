@@ -23,16 +23,11 @@ from scipy.interpolate import interp1d
 from scipy.optimize import minimize
 from scipy.optimize import fmin_powell
 
-from pendant_drop_functions import find_circle,\
-                                   theoretical_contour,\
-                                   rotate_lines
+from drop.theory import theoretical_contour, rotate_lines
+from drop.edge import find_circle
 
 
-from drop.io import load_image
-
-
-
-def young_laplace(variables, image_shape, radius, R_python, Z_python):
+def young_laplace(variables, image_shape, radius, R_edges, Z_edges):
 
     gamma = variables[0]
     theta = variables[1]
@@ -69,12 +64,11 @@ def young_laplace(variables, image_shape, radius, R_python, Z_python):
     R, Z = rotate_lines(R, Z, base_center, theta)
 
 
-    aa = np.where(Z>max(Z_python))
+    aa = np.where(Z>max(Z_edges))
     R = np.delete(R, aa[0])
     Z = np.delete(Z, aa[0])
 
     return R, Z
-
 
 
 def split_profile(R, Z):
@@ -89,7 +83,8 @@ def split_profile(R, Z):
     Z_right = Z[~mask_left]
     return R_left, Z_left, R_right, Z_right
 
-def squared_distance(R, Z, R_python, Z_python):
+
+def squared_distance(R, Z, R_edges, Z_edges):
     """
     Calculate the squared distance for half profile.
 
@@ -100,26 +95,26 @@ def squared_distance(R, Z, R_python, Z_python):
     # TODO: use of extrapolate due to the rotation.
     # We can be smarter and integrate over a longer distance...
     R_theo_interpolator = interp1d(Z, R, kind='linear', fill_value='extrapolate')
-    R_theo_interpolated = R_theo_interpolator(Z_python)
-    return (R_theo_interpolated - R_python)**2
+    R_theo_interpolated = R_theo_interpolator(Z_edges)
+    return (R_theo_interpolated - R_edges)**2
 
 
-def error_f(variables, image_shape, radius, R_python, Z_python):
+def error_f(variables, image_shape, radius, R_edges, Z_edges):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
     """
     print("variables:",  variables)
 
 
-    R, Z = young_laplace(variables, image_shape, radius, R_python, Z_python)
+    R, Z = young_laplace(variables, image_shape, radius, R_edges, Z_edges)
 
 
     R_left, Z_left, R_right, Z_right = split_profile(R, Z)
-    R_python_left, Z_python_left, R_python_right, Z_python_right = split_profile(R_python, Z_python)
+    R_edges_left, Z_edges_left, R_edges_right, Z_edges_right = split_profile(R_edges, Z_edges)
 
     # Error on both sides.
-    e_left = squared_distance(R_left, Z_left, R_python_left, Z_python_left)
-    e_right = squared_distance(R_right, Z_right, R_python_right, Z_python_right)
+    e_left = squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
+    e_right = squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
 
     e_all = np.concatenate((e_left, e_right))
     chi_squared = np.sum(e_all)
@@ -130,7 +125,9 @@ def error_f(variables, image_shape, radius, R_python, Z_python):
 if __name__ == '__main__':
 
 
-    from skimage import feature
+    from drop.edge import detect_edges
+    from drop.io import load_image
+
     from skimage.draw import circle, circle_perimeter
     image_path = 'uEye_Image_000827.bmp'
     zoom = ([100,1312], [800,1900])
@@ -142,13 +139,9 @@ if __name__ == '__main__':
 
     image1 = load_image(image_path, region=zoom)
 
-    edges = feature.canny(image1, sigma=2.5)
+    edges, R_edges, Z_edges = detect_edges(image1)
 
     hough_radii = np.arange(418, 440)
-    Z_python = np.where(edges==True)[0]
-    R_python = np.where(edges==True)[1]
-
-
     center_x, center_y, radius, tip = find_circle(edges, hough_radii)
 
     rr,cc = circle(center_x, center_y, radius-5)
@@ -181,8 +174,8 @@ if __name__ == '__main__':
 
 
 
-    ind_min = np.where(abs(np.array(R_python)-guess_tipy)==min(abs(np.array(R_python)-guess_tipy)))[0][0]
-    guess_tipx = Z_python[ind_min]
+    ind_min = np.where(abs(np.array(R_edges)-guess_tipy)==min(abs(np.array(R_edges)-guess_tipy)))[0][0]
+    guess_tipx = Z_edges[ind_min]
 
 
     tipx=tip[1]
@@ -203,7 +196,7 @@ if __name__ == '__main__':
 
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
     res = minimize(error_f, variables,
-                   args=(edges.shape, radius, R_python, Z_python),
+                   args=(edges.shape, radius, R_edges, Z_edges),
                    method='Powell',
                    options={'direc':initial_directions,'maxiter':100,'xtol': 1e-3,'ftol':1e-2, 'disp': True})
     #,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
@@ -213,7 +206,7 @@ if __name__ == '__main__':
     #optimal_variables=res
 
 
-    R, Z = young_laplace(optimal_variables, edges.shape, radius, R_python, Z_python)
+    R, Z = young_laplace(optimal_variables, edges.shape, radius, R_edges, Z_edges)
     #### image1b = rotate(image1,optimal_variables[1],center=base_center,resize=False)
 
 
@@ -230,7 +223,7 @@ if __name__ == '__main__':
     plt.imshow(image1, cmap='gray')
     circle = plt.Circle((center_y, center_x), radius=radius, color='c', fill=False)
     ax.add_patch(circle)
-    plt.plot(R_python, Z_python, '*g', markersize=1)
+    plt.plot(R_edges, Z_edges, '*g', markersize=1)
     plt.plot(R, Z, 'ro', markersize=1)
 
 
