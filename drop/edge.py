@@ -11,6 +11,7 @@ from skimage.transform import hough_circle
 from skimage.feature import peak_local_max
 from skimage import measure
 
+
 def _find_circle(edges, hough_radii):
     """
     Find the best circle to model points marked as `True`.
@@ -56,7 +57,7 @@ def _find_circle(edges, hough_radii):
 
 
 
-def fit_circle_tip(shape, R, Z):
+def _fit_circle_tip_hough_transform(shape, R, Z):
     """
     Fit a circle with a Hough transform on the points between the equator
     and the tip.
@@ -83,6 +84,35 @@ def fit_circle_tip(shape, R, Z):
     # Fine grain
     hough_radii = np.arange(radius - 2 * step, radius + 2 * step, 1)
     return _find_circle(edges, hough_radii)
+
+
+
+def _fit_circle_tip_ransac(shape, R, Z):
+
+
+    points = np.column_stack((R, Z))
+
+    model_robust, inliers = measure.ransac(points, measure.CircleModel,
+                                           min_samples=5,
+                                           residual_threshold=.1,
+                                           max_trials=1000)
+
+    cy, cx, r = model_robust.params
+    tip = [cy, cx - r]
+
+    return cx, cy, r, tip
+
+
+def fit_circle_tip(shape, R, Z, method='ransac'):
+    """
+
+    """
+    if method.lower() == 'ransac':
+        return _fit_circle_tip_ransac(shape, R, Z)
+    elif method.lower() == 'hough':
+        return _fit_circle_tip_hough_transform(shape, R, Z)
+    else:
+        raise ValueError('Wrong parameter value for `method`.')
 
 
 def detect_edges(image):
