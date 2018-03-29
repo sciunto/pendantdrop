@@ -234,30 +234,5 @@ def partial_ksi(theorique, python):
     return [python[1][z_inds[ind]], python[0][z_inds[ind]]], min(dist)
 
 
-def error_calculation(R, Z, R_python, Z_python):
-
-    python = (R_python, Z_python)
-
-    ind_milieu = int(len(Z)/2)
-
-    ksi_z = []
-    mini_inds = []
-    for i in range (ind_milieu):
-        ind_droite = ind_milieu+i
-        ind_gauche = ind_milieu-i
-        if i==0:
-            min_dist_ind, ksi0 = partial_ksi([R[ind_milieu], Z[ind_milieu]], python)
-            mini_inds.append(min_dist_ind)
-            ksi_z.append(ksi0)
-        else:
-            min_dist_ind,ksi_gauche = partial_ksi([R[ind_gauche], Z[ind_gauche]], python)
-            mini_inds.append(min_dist_ind)
-            min_dist_ind,ksi_droite = partial_ksi([R[ind_droite], Z[ind_droite]], python)
-            mini_inds.append(min_dist_ind)
-            ksi_z.append(ksi_gauche+ksi_droite)
-        n = i*2+1
-        RMSd = np.sqrt(np.sum(ksi_z) / n)
-    return np.sum(ksi_z), ksi_z, mini_inds, RMSd
-
 
 

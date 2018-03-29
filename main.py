@@ -30,7 +30,7 @@ from pendant_drop_functions import find_circle,\
                                    error_calculation
 
 
-from plus import load_image
+from drop.io import load_image
 
 
 
