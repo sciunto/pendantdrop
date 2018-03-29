@@ -56,7 +56,7 @@ def _find_circle(edges, hough_radii):
 
 
 
-def fit_circle_tip(shape, R, Z, hough_radii):
+def fit_circle_tip(shape, R, Z):
     """
     Fit a circle with a Hough transform on the points between the equator
     and the tip.
@@ -67,14 +67,21 @@ def fit_circle_tip(shape, R, Z, hough_radii):
     parameters : tuple
         (center_x, center_y, radius, tip_position)
     """
-    # Guess the maximum radius
-    max_possible_radius = .5 * (R.max() - R.min())
+
     # Assume upward bubble orientation
     mask = Z < Z.min() + 0.5 * (Z[R.argmin()] - Z.min())
     edges = np.full(shape, False, dtype=bool)
     edges[Z[mask].astype(np.int), R[mask].astype(np.int)] = True
 
-
+    # Guess the maximum radius
+    max_possible_radius = .5 * (R.max() - R.min())
+    min_possible_radius = int(0.8 * max_possible_radius)
+    # Coarse grain
+    step = 5
+    hough_radii = np.arange(min_possible_radius, max_possible_radius, step)
+    _, _, radius, _ = _find_circle(edges, hough_radii)
+    # Fine grain
+    hough_radii = np.arange(radius - 2 * step, radius + 2 * step, 1)
     return _find_circle(edges, hough_radii)
 
 

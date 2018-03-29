@@ -130,8 +130,7 @@ if __name__ == '__main__':
     from skimage.draw import circle, circle_perimeter
     image_path = 'uEye_Image_000827.bmp'
     zoom = ([100,1312], [800,1900])
-    # TODO: this parameter can be easely guessed.
-    hough_radii = np.arange(400, 440)
+
 
 
     #image_path = 'uEye_Image_002767.bmp'
@@ -142,7 +141,7 @@ if __name__ == '__main__':
     edges, R_edges, Z_edges = detect_edges(image1)
 
 
-    center_x, center_y, radius, tip = fit_circle_tip(image1.shape, R_edges, Z_edges, hough_radii)
+    center_x, center_y, radius, tip = fit_circle_tip(image1.shape, R_edges, Z_edges)
 
     # Display purpose only...
     rr,cc = circle(center_x, center_y, radius-5)
