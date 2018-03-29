@@ -14,111 +14,19 @@ import matplotlib.pyplot as plt
 
 
 
-from scipy.interpolate import interp1d
+
 from scipy.optimize import minimize
 from scipy.optimize import fmin_powell
 
-from drop.theory import theoretical_contour, rotate_lines
+from drop.theory import rotate_lines, young_laplace
 from drop.edge import fit_circle_tip
 
 
-def young_laplace(variables, image_shape, radius, R_edges, Z_edges):
-
-    gamma = variables[0]
-    theta = variables[1]
-    center_y = variables[2]
-
-
-    calib = 0.00124 / 400  #400 pixel = 1.24mm
-    rho_g = 1000 * 9.81
-    lc = np.sqrt(gamma / rho_g)  # We give capillary lengthy : may be given by the user later on
-    r0 = radius * calib
-
-
-    tip_x = guess_tipx
-
-    print(center_y)
-
-    base_center = [center_y,center_x]
 
 
 
-    R, Z = theoretical_contour(image_shape, lc, r0, tip, calib)
+from drop.optimization import squared_distance, error_f
 
-    # Cut
-    Z0 = image_shape[0] - tip[1]
-    Zmax = Z0 / lc * calib #maximum possible values of Z to be upgraded
-    R = R[Z < Zmax]
-    Z = Z[Z < Zmax]
-
-    # Symetrize the contour
-    R = np.concatenate((-R, R))
-    Z = np.concatenate((Z, Z))
-
-    # rescales contour to the image axes
-    R = R * lc / calib + center_y
-    Z = lc / calib * Z + tip_x - 1
-
-    # Rotate
-    R, Z = rotate_lines(R, Z, base_center, theta)
-
-
-    aa = np.where(Z>max(Z_edges))
-    R = np.delete(R, aa[0])
-    Z = np.delete(Z, aa[0])
-
-    return R, Z
-
-
-def split_profile(R, Z):
-    """
-    Split a profile in two parts to get a single value for each Z.
-    """
-    # Assumption on bubble upward orientation
-    mask_left = R < R[Z.argmin()]
-    R_left = R[mask_left]
-    Z_left = Z[mask_left]
-    R_right = R[~mask_left]
-    Z_right = Z[~mask_left]
-    return R_left, Z_left, R_right, Z_right
-
-
-def squared_distance(R, Z, R_edges, Z_edges):
-    """
-    Calculate the squared distance for half profile.
-
-    Theoretical points are interpolated on experimental ones.
-
-
-    """
-    # TODO: use of extrapolate due to the rotation.
-    # We can be smarter and integrate over a longer distance...
-    R_theo_interpolator = interp1d(Z, R, kind='linear', fill_value='extrapolate')
-    R_theo_interpolated = R_theo_interpolator(Z_edges)
-    return (R_theo_interpolated - R_edges)**2
-
-
-def error_f(variables, image_shape, radius, R_edges, Z_edges):
-    """
-    Return the RMS for a profile given by set of parameters to the experimental profile.
-    """
-    print("variables:",  variables)
-
-
-    R, Z = young_laplace(variables, image_shape, radius, R_edges, Z_edges)
-
-
-    R_left, Z_left, R_right, Z_right = split_profile(R, Z)
-    R_edges_left, Z_edges_left, R_edges_right, Z_edges_right = split_profile(R_edges, Z_edges)
-
-    # Error on both sides.
-    e_left = squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
-    e_right = squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
-
-    e_all = np.concatenate((e_left, e_right))
-    chi_squared = np.sum(e_all)
-    RMS = np.sqrt(chi_squared) / len(e_all)
-    return RMS
 
 
 if __name__ == '__main__':
@@ -196,7 +104,7 @@ if __name__ == '__main__':
 
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
     res = minimize(error_f, variables,
-                   args=(edges.shape, radius, R_edges, Z_edges),
+                   args=(edges.shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x),
                    method='Powell',
                    options={'direc':initial_directions,
                             'maxiter':100,
@@ -210,7 +118,7 @@ if __name__ == '__main__':
     #optimal_variables=res
 
 
-    R, Z = young_laplace(optimal_variables, edges.shape, radius, R_edges, Z_edges)
+    R, Z = young_laplace(optimal_variables, edges.shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x)
     #### image1b = rotate(image1,optimal_variables[1],center=base_center,resize=False)
 
 

@@ -11,6 +11,55 @@ from scipy.integrate import odeint
 
 
 
+def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x):
+
+    gamma = variables[0]
+    theta = variables[1]
+    center_y = variables[2]
+
+
+    calib = 0.00124 / 400  #400 pixel = 1.24mm
+    rho_g = 1000 * 9.81
+    lc = np.sqrt(gamma / rho_g)  # We give capillary lengthy : may be given by the user later on
+    r0 = radius * calib
+
+
+    tip_x = guess_tipx
+
+    print(center_y)
+
+    base_center = [center_y, center_x]
+
+
+
+    R, Z = theoretical_contour(image_shape, lc, r0, tip, calib)
+
+    # Cut
+    Z0 = image_shape[0] - tip[1]
+    Zmax = Z0 / lc * calib #maximum possible values of Z to be upgraded
+    R = R[Z < Zmax]
+    Z = Z[Z < Zmax]
+
+    # Symetrize the contour
+    R = np.concatenate((-R, R))
+    Z = np.concatenate((Z, Z))
+
+    # rescales contour to the image axes
+    R = R * lc / calib + center_y
+    Z = lc / calib * Z + tip_x - 1
+
+    # Rotate
+    R, Z = rotate_lines(R, Z, base_center, theta)
+
+
+    aa = np.where(Z>max(Z_edges))
+    R = np.delete(R, aa[0])
+    Z = np.delete(Z, aa[0])
+
+    return R, Z
+
+
+
 def younglaplace_diff_equation(variables, space, bond):
     """
     Return the derivatives corresponding to the Young-Laplace equation.
