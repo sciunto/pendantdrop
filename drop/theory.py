@@ -5,7 +5,6 @@ Created on Mon Feb 19 17:03:15 2018
 @author: miguet
 """
 import numpy as np
-import math
 
 from scipy.interpolate import interp1d
 from scipy.integrate import odeint
@@ -14,15 +13,28 @@ from scipy.integrate import odeint
 
 def younglaplace_diff_equation(variables, space, bond):
     """
+    Return the derivatives corresponding to the Young-Laplace equation.
 
+    Parameters
+    ----------
     variables : tuple
         (phi, r_tilde, z_tilde)
+    space : 1D-array
+        Space variable.
+    bond : scalar
+        Bond number.
 
+    Returns
+    -------
+    derivatives : tuple
+        (d phi / d s_tilde, d r_tilde / d s_tilde,  d z_tilde / d s_tilde )
 
     Notes
     -----
     tilde means non-dimensionalized by the tip radius.
 
+    References
+    ----------
     See Axisymmetric Drop Shape Analysis: Computational Methods
     for the Measurement of Interfacial Properties from the Shape
     and Dimensions of Pendant and Sessile Drops
@@ -41,6 +53,11 @@ def younglaplace_diff_equation(variables, space, bond):
 
 
 def theoretical_contour(image_shape, lc, r0, tip, calib):
+    """
+    Compute the theoretical contour.
+
+
+    """
     bond = (r0 / lc)**2
 
     # TODO 10 is an arbitrary value. Need to check if an increase is needed... or something

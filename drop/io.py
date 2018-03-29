@@ -28,4 +28,3 @@ def load_image(path, region=None):
         image = image[region[0][0]:region[0][1],
                       region[1][0]:region[1][1]]
     return image
-

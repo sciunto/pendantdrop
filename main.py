@@ -14,11 +14,6 @@ import matplotlib.pyplot as plt
 
 
 
-
-
-from skimage.transform import rotate
-
-
 from scipy.interpolate import interp1d
 from scipy.optimize import minimize
 from scipy.optimize import fmin_powell
@@ -136,7 +131,7 @@ if __name__ == '__main__':
     image_path = 'uEye_Image_000827.bmp'
     zoom = ([100,1312], [800,1900])
     # TODO: this parameter can be easely guessed.
-    hough_radii = np.arange(418, 440)
+    hough_radii = np.arange(400, 440)
 
 
     #image_path = 'uEye_Image_002767.bmp'
