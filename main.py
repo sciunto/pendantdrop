@@ -23,7 +23,7 @@ from scipy.interpolate import interp1d
 from scipy.optimize import minimize
 from scipy.optimize import fmin_powell
 
-from drop.theory import theoretical_contour, theoretical_contour2, rotate_lines
+from drop.theory import theoretical_contour, rotate_lines
 from drop.edge import fit_circle_tip
 
 
@@ -45,11 +45,10 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges):
     print(center_y)
 
     base_center = [center_y,center_x]
-#    base_center=[center_yb,tip_x]
 
 
 
-    R, Z = theoretical_contour2(image_shape, lc, r0, tip, calib)
+    R, Z = theoretical_contour(image_shape, lc, r0, tip, calib)
 
     # Cut
     Z0 = image_shape[0] - tip[1]
@@ -239,4 +238,4 @@ if __name__ == '__main__':
 
 
     plt.plot([base_center[0], tip[0]], [base_center[1], tip[1]], '-y')
-    plt.show( )
+    #plt.show( )
