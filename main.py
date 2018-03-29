@@ -25,9 +25,7 @@ from scipy.optimize import fmin_powell
 
 from pendant_drop_functions import find_circle,\
                                    theoretical_contour,\
-                                   rotate_lines,\
-                                   partial_ksi,\
-                                   error_calculation
+                                   rotate_lines
 
 
 from drop.io import load_image
