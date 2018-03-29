@@ -80,7 +80,9 @@ def young_laplace(variables, image_shape, radius, R_python, Z_python):
 
 
 def split_profile(R, Z):
-
+    """
+    Split a profile in two parts to get a single value for each Z.
+    """
     # Assumption on bubble upward orientation
     mask_left = R < R[Z.argmin()]
     R_left = R[mask_left]
@@ -89,40 +91,42 @@ def split_profile(R, Z):
     Z_right = Z[~mask_left]
     return R_left, Z_left, R_right, Z_right
 
-def error_calculation_interpolated(R, Z, R_python, Z_python):
+def squared_distance(R, Z, R_python, Z_python):
     """
-    Calculate the RMS for half profile.
+    Calculate the squared distance for half profile.
 
     Theoretical points are interpolated on experimental ones.
 
 
     """
+    # TODO: use of extrapolate due to the rotation.
+    # We can be smarter and integrate over a longer distance...
     R_theo_interpolator = interp1d(Z, R, kind='linear', fill_value='extrapolate')
     R_theo_interpolated = R_theo_interpolator(Z_python)
-    chi_squared = np.sum((R_theo_interpolated - R_python)**2)
-    RMSd = np.sqrt(chi_squared) / len(Z_python)
-    return RMSd
+    return (R_theo_interpolated - R_python)**2
 
 
-def error_f(variables, image_shape, radius, R_python, Z_python, interpolate=True):
+def error_f(variables, image_shape, radius, R_python, Z_python):
+    """
+    Return the RMS for a profile given by set of parameters to the experimental profile.
+    """
     print("variables:",  variables)
 
 
     R, Z = young_laplace(variables, image_shape, radius, R_python, Z_python)
 
-    if interpolate:
-        R_left, Z_left, R_right, Z_right = split_profile(R, Z)
-        R_python_left, Z_python_left, R_python_right, Z_python_right = split_profile(R_python, Z_python)
 
-        e_left = error_calculation_interpolated(R_left, Z_left, R_python_left, Z_python_left)
-        e_right = error_calculation_interpolated(R_right, Z_right, R_python_right, Z_python_right)
+    R_left, Z_left, R_right, Z_right = split_profile(R, Z)
+    R_python_left, Z_python_left, R_python_right, Z_python_right = split_profile(R_python, Z_python)
 
-        RMSd = 0.5 * (e_left + e_right)
-        return RMSd
-    else:
-        # Jonas' version
-        ksi_z, kk, mini_inds, RMSd = error_calculation(R, Z, R_python, Z_python)
-        return RMSd
+    # Error on both sides.
+    e_left = squared_distance(R_left, Z_left, R_python_left, Z_python_left)
+    e_right = squared_distance(R_right, Z_right, R_python_right, Z_python_right)
+
+    e_all = np.concatenate((e_left, e_right))
+    chi_squared = np.sum(e_all)
+    RMS = np.sqrt(chi_squared) / len(e_all)
+    return RMS
 
 
 if __name__ == '__main__':
@@ -212,7 +216,9 @@ if __name__ == '__main__':
 
 
     R, Z = young_laplace(optimal_variables, edges.shape, radius, R_python, Z_python)
-    image1b = rotate(image1,optimal_variables[1],center=base_center,resize=False)
+    #### image1b = rotate(image1,optimal_variables[1],center=base_center,resize=False)
+
+
 
 
     center_yb, center_xb = rotate_lines([center_y], [center_x], tip, optimal_variables[1])
@@ -224,9 +230,11 @@ if __name__ == '__main__':
     plt.figure()
     ax=plt.axes()
     plt.imshow(image1, cmap='gray')
-    circle = plt.Circle((center_y, center_x), radius=radius, color='r', fill=False)
+    circle = plt.Circle((center_y, center_x), radius=radius, color='c', fill=False)
     ax.add_patch(circle)
     plt.plot(R_python, Z_python, '*g', markersize=1)
-    plt.plot(R, Z, '*b', markersize=1)
+    plt.plot(R, Z, 'ro', markersize=1)
+
+
     plt.plot([base_center[0], tip[0]], [base_center[1], tip[1]], '-y')
     plt.show( )
