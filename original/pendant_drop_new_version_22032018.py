@@ -6,8 +6,8 @@ Created on Thu Mar 22 14:15:31 2018
 """
 
 
-from IPython import get_ipython
-get_ipython().magic('reset -sf')
+#from IPython import get_ipython
+#get_ipython().magic('reset -sf')
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,7 +30,7 @@ from scipy.interpolate import interp1d
 image_path=r"C:\Users\miguet\Desktop\Data\Raw\Bubble growth\2018\18012018\3\test_preprocess\uEye_Image_003801.bmp"
 image_path=r"C:\Users\miguet\Desktop\Data\Raw\Bubble growth\2018\18012018\3\uEye_Image_003801.bmp"
 #image_path=r"C:\Users\miguet\Desktop\Data\Raw\Bubble growth\2018\18012018\3\uEye_Image_002767.bmp"####photo contour difficile
-image_path=r"C:\Users\miguet\Desktop\Data\Raw\Bubble growth\2017\December\14\water\images\uEye_Image_000827.bmp"
+image_path="../uEye_Image_000827.bmp"
 #image_path=r"C:\Users\miguet\Desktop\Data\Raw\Bubble growth\2018\March\12\2\uEye_Image_0000917.bmp"
 
 image=io.imread(image_path, as_grey=True)
