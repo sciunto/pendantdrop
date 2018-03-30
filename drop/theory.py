@@ -10,6 +10,7 @@ from scipy.interpolate import interp1d
 from scipy.integrate import odeint
 from drop.utils import rotate
 
+
 def young_laplace_diff_equation(variables, space, bond_number):
     """
     Return the derivatives corresponding to the Young-Laplace equation.
@@ -77,10 +78,11 @@ def theoretical_contour(image_shape, bond_number, tip, calib):
     return R, Z
 
 
-def rotate_lines(R,Z, center, theta):
-
-    """ Rotate self.polylines the given angle about their centers. """
-    theta= - theta * np.pi / 180
+def rotate_lines(R, Z, center, theta):
+    """
+    Rotate with specific angle conversion for our images.
+    """
+    theta = - theta * np.pi / 180
 
     return rotate(R, Z, center[0], center[1], theta)
 
