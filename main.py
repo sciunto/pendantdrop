@@ -136,4 +136,5 @@ if __name__ == '__main__':
 
 
     plt.plot([base_center[0], tip[0]], [base_center[1], tip[1]], '-y')
+    plt.title('Gamma = %f N/m' % optimal_variables[0])
     plt.show()
