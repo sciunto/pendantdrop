@@ -44,7 +44,10 @@ if __name__ == '__main__':
     edges, R_edges, Z_edges = detect_edges(image1)
 
 
-    center_x, center_y, radius, tip = fit_circle_tip(image1.shape, R_edges, Z_edges, method='ransac')
+    center_x, center_y, radius, tip = fit_circle_tip(image1.shape,
+                                                     R_edges, Z_edges,
+                                                     method='ransac',
+                                                     debug=False)
 
     # Display purpose only...
     rr,cc = circle(center_x, center_y, radius-5)
@@ -133,4 +136,4 @@ if __name__ == '__main__':
 
 
     plt.plot([base_center[0], tip[0]], [base_center[1], tip[1]], '-y')
-    plt.show( )
+    plt.show()

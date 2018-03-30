@@ -92,7 +92,7 @@ def _fit_circle_tip_hough_transform(shape, R, Z):
 
 
 
-def _fit_circle_tip_ransac(shape, R, Z):
+def _fit_circle_tip_ransac(shape, R, Z, debug=False):
     """
     Fit the tip of the drop with a circle by RANSAC.
 
@@ -104,6 +104,8 @@ def _fit_circle_tip_ransac(shape, R, Z):
         Radial coordinates.
     Z : array
         Vertical coordinates.
+    debug : boolean, optional
+        If `True`, activate plots to visualize the fit.
 
     Returns
     -------
@@ -111,20 +113,39 @@ def _fit_circle_tip_ransac(shape, R, Z):
         (center_x, center_y, radius, tip_position)
 
     """
-    points = np.column_stack((R, Z))
+
+    mask = Z < Z.min() + 0.5 * (Z[R.argmin()] - Z.min())
+    Z_cropped = Z[mask]
+    R_cropped = R[mask]
+
+    points = np.column_stack((R_cropped, Z_cropped))
+
 
     model_robust, inliers = measure.ransac(points, measure.CircleModel,
-                                           min_samples=5,
+                                           min_samples=4,
                                            residual_threshold=.1,
                                            max_trials=1000)
 
     cy, cx, r = model_robust.params
     tip = [cy, cx - r]
 
+    if debug:
+        import matplotlib.pyplot as plt
+        fig, axes = plt.subplots(1, 1, figsize=(15, 8))
+
+        circle = plt.Circle((cy, cx), radius=r, facecolor='black', linewidth=2)
+        axes.add_patch(circle)
+        axes.plot(R, Z, 'g.')
+        axes.plot(points[inliers, 0], points[inliers, 1],
+                 'b.', markersize=1, label='inliers')
+        axes.plot(points[~inliers, 0], points[~inliers, 1],
+                 'r.', markersize=1, label='outliers')
+        plt.legend()
+
     return cx, cy, r, tip
 
 
-def fit_circle_tip(shape, R, Z, method='ransac'):
+def fit_circle_tip(shape, R, Z, method='ransac', debug=False):
     """
     Fit the tip of the drop with a circle.
 
@@ -138,6 +159,8 @@ def fit_circle_tip(shape, R, Z, method='ransac'):
         Vertical coordinates.
     method : str, optional
         Name of the method: ransac or hough.
+    debug : boolean, optional
+        If `True`, activate plots to visualize the fit.
 
     Returns
     -------
@@ -145,7 +168,7 @@ def fit_circle_tip(shape, R, Z, method='ransac'):
         (center_x, center_y, radius, tip_position)
     """
     if method.lower() == 'ransac':
-        return _fit_circle_tip_ransac(shape, R, Z)
+        return _fit_circle_tip_ransac(shape, R, Z, debug=debug)
     elif method.lower() == 'hough':
         return _fit_circle_tip_hough_transform(shape, R, Z)
     else:

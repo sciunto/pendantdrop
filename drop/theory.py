@@ -54,6 +54,13 @@ def theoretical_contour(image_shape, bond_number, tip, calib):
     Compute the theoretical contour from the Young-Laplace differential equation.
 
 
+    Parameters
+    ----------
+
+    Notes
+    -----
+    The profile is non-dimensionalized by the tip radius.
+
     """
 
     # TODO 10 is an arbitrary value. Need to check if an increase is needed... or something
@@ -68,8 +75,6 @@ def theoretical_contour(image_shape, bond_number, tip, calib):
     Z = solution[:, 2]
 
     return R, Z
-
-
 
 
 def rotate_lines(R,Z, center, theta):

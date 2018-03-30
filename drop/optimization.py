@@ -35,8 +35,6 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_t
 
     tip_x = guess_tipx
 
-    base_center = [center_y, center_x]
-
     R, Z = theoretical_contour(image_shape, bond_number, tip, calib)
 
     R = R * r0
@@ -44,7 +42,7 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_t
 
     # Cut
     Z0 = image_shape[0] - tip[1]
-    Zmax = Z0 * calib #maximum possible values of Z to be upgraded
+    Zmax = Z0 * calib # maximum possible values of Z to be upgraded
     R = R[Z < Zmax]
     Z = Z[Z < Zmax]
 
@@ -52,13 +50,23 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_t
     R = np.concatenate((-R, R))
     Z = np.concatenate((Z, Z))
 
+
+    # Rotate
+    base_center = np.array((0, (center_x - tip_x + 1) * calib))
+    R, Z = rotate_lines(R, Z, base_center, theta)
+    R = np.array(R)
+    Z = np.array(Z)
+
+#    # Cut
+#    Z0 = image_shape[0] - tip[1]
+#    Zmax = Z0 * calib # maximum possible values of Z to be upgraded
+#    R = R[Z < Zmax]
+#    Z = Z[Z < Zmax]
+
+
     # rescales contour to the image axes
     R = R / calib + center_y
     Z = Z / calib + tip_x - 1
-
-    # Rotate
-    R, Z = rotate_lines(R, Z, base_center, theta)
-
 
     aa = np.where(Z>max(Z_edges))
     R = np.delete(R, aa[0])
