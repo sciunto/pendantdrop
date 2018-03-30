@@ -30,6 +30,7 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_t
     rho_g = 1000 * 9.81
     lc = np.sqrt(gamma / rho_g)  # We give capillary lengthy : may be given by the user later on
     r0 = radius * calib
+    bond_number = (r0 / lc)**2
 
 
     tip_x = guess_tipx
@@ -38,7 +39,7 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_t
 
     base_center = [center_y, center_x]
 
-    R, Z = theoretical_contour(image_shape, lc, r0, tip, calib)
+    R, Z = theoretical_contour(image_shape, bond_number, tip, calib)
 
     R = R * r0
     Z = Z * r0
@@ -69,7 +70,7 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_t
 
 
 
-def younglaplace_diff_equation(variables, space, bond):
+def young_laplace_diff_equation(variables, space, bond_number):
     """
     Return the derivatives corresponding to the Young-Laplace equation.
 
@@ -79,7 +80,7 @@ def younglaplace_diff_equation(variables, space, bond):
         (phi, r_tilde, z_tilde)
     space : 1D-array
         Space variable.
-    bond : scalar
+    bond_number : scalar
         Bond number.
 
     Returns
@@ -93,14 +94,12 @@ def younglaplace_diff_equation(variables, space, bond):
 
     References
     ----------
-    See Axisymmetric Drop Shape Analysis: Computational Methods
-    for the Measurement of Interfacial Properties from the Shape
-    and Dimensions of Pendant and Sessile Drops
+    [1] https://doi.org/10.1006/jcis.1997.5214
     """
     phi, r, z = variables
 
     if r != 0:
-        phip = 2 - bond * z - np.sin(phi) / r
+        phip = 2 - bond_number * z - np.sin(phi) / r
     else:
         phip = 1
 
@@ -110,17 +109,18 @@ def younglaplace_diff_equation(variables, space, bond):
     return phip, rp, zp
 
 
-def theoretical_contour(image_shape, lc, r0, tip, calib):
+def theoretical_contour(image_shape, bond_number, tip, calib):
     """
-    Compute the theoretical contour.
+    Compute the theoretical contour from the Young-Laplace differential equation.
 
 
     """
-    bond = (r0 / lc)**2
 
     # TODO 10 is an arbitrary value. Need to check if an increase is needed... or something
     s_tilde = np.linspace(0, 10, 1e3)
-    solution = odeint(younglaplace_diff_equation, (0, 0, 0), s_tilde, args=(bond,))
+    solution = odeint(young_laplace_diff_equation,
+                      (0, 0, 0), s_tilde,
+                      args=(bond_number,))
     #phi = solution[:, 0]
 
     # TODO WARNING, non dimentionalized by lc to be consistant with Jonas
