@@ -35,7 +35,7 @@ if __name__ == '__main__':
     from skimage.draw import circle, circle_perimeter
     image_path = 'uEye_Image_000827.bmp'
     zoom = ([100,1312], [800,1900])
-
+    calib = 0.00124 / 400  #400 pixel = 1.24mm
 
 
     #image_path = 'uEye_Image_002767.bmp'
@@ -51,9 +51,6 @@ if __name__ == '__main__':
     # Display purpose only...
     rr,cc = circle(center_x, center_y, radius-5)
     image1[rr, cc] = 10
-
-
-
 
 
 
@@ -101,7 +98,7 @@ if __name__ == '__main__':
 
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
     res = minimize(error_f, variables,
-                   args=(edges.shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x),
+                   args=(edges.shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib),
                    method='Powell',
                    options={'direc':initial_directions,
                             'maxiter':100,
@@ -115,7 +112,7 @@ if __name__ == '__main__':
     #optimal_variables=res
 
 
-    R, Z = young_laplace(optimal_variables, edges.shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x)
+    R, Z = young_laplace(optimal_variables, edges.shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib)
     #### image1b = rotate(image1,optimal_variables[1],center=base_center,resize=False)
 
 

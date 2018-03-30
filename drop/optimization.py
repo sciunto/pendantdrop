@@ -26,14 +26,14 @@ def squared_distance(R, Z, R_edges, Z_edges):
     return (R_theo_interpolated - R_edges)**2
 
 
-def error_f(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x):
+def error_f(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
     """
     print("variables:",  variables)
 
 
-    R, Z = young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x)
+    R, Z = young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib)
 
 
     R_left, Z_left, R_right, Z_right = split_profile(R, Z)

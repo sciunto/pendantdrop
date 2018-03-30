@@ -11,14 +11,22 @@ from scipy.integrate import odeint
 
 
 
-def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x):
+def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib):
+    """
 
+    Parameters
+    ----------
+
+    calib : scalar
+        Calibration in mm per px.
+
+    """
     gamma = variables[0]
     theta = variables[1]
     center_y = variables[2]
 
 
-    calib = 0.00124 / 400  #400 pixel = 1.24mm
+
     rho_g = 1000 * 9.81
     lc = np.sqrt(gamma / rho_g)  # We give capillary lengthy : may be given by the user later on
     r0 = radius * calib
