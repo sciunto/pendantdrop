@@ -21,6 +21,9 @@ def load_image(path, region=None):
     region : tuple, optional
         Corner positions to crop the image.
 
+    Returns
+    -------
+    image
     """
     image = io.imread(path, as_grey=True)
 
