@@ -8,7 +8,7 @@ import numpy as np
 
 from scipy.interpolate import interp1d
 from scipy.integrate import odeint
-
+from drop.utils import rotate
 
 def young_laplace_diff_equation(variables, space, bond_number):
     """
@@ -78,31 +78,9 @@ def theoretical_contour(image_shape, bond_number, tip, calib):
 
 
 def rotate_lines(R,Z, center, theta):
-    from math import sin, cos#, radians
+
     """ Rotate self.polylines the given angle about their centers. """
-#    theta = radians(deg)  # Convert angle from degrees to radians
-    theta=-theta*np.pi/180##sombre histoire de convention...
-    cosang, sinang = cos(theta), sin(theta)
+    theta= - theta * np.pi / 180
 
-#    for pl in self.polylines:
-#        # Find logical center (avg x and avg y) of entire polyline
-#        n = len(pl.lines)*2  # Total number of points in polyline
-    cx = center[0]
-    cy = center[1]
-    R_rot=[]
-    Z_rot=[]
-    for i in range(len(R)):
-       xr=R[i]-cx
-       yr=Z[i]-cy
-
-       nx=( xr*cosang - yr*sinang) + cx
-       ny=( xr*sinang + yr*cosang) + cy
-
-#        nx=(R[i]+Z[i]-cx-cy)/(2*cosang)+cx
-#        ny=-(R[i]-Z[i]-cx+cy)/(2*sinang)+cy
-#
-       R_rot.append(nx)
-       Z_rot.append(ny)
-    return R_rot,Z_rot
-
+    return rotate(R, Z, center[0], center[1], theta)
 
