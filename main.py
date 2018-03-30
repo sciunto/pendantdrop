@@ -24,15 +24,13 @@ from drop.edge import fit_circle_tip
 
 from drop.optimization import error_f
 
+from drop.edge import detect_edges
+from drop.io import load_image
 
+from skimage.draw import circle, circle_perimeter
 
 if __name__ == '__main__':
 
-
-    from drop.edge import detect_edges
-    from drop.io import load_image
-
-    from skimage.draw import circle, circle_perimeter
     image_path = 'uEye_Image_000827.bmp'
     zoom = ([100,1312], [800,1900])
     calib = 0.00124 / 400  #400 pixel = 1.24mm

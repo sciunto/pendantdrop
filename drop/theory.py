@@ -161,25 +161,3 @@ def rotate_lines(R,Z, center, theta):
     return R_rot,Z_rot
 
 
-#def partial_ksi(theorique, python):
-#    ####calculate the location on the python contour that minimizes the distance to the theoretical one
-#    dist=[]
-##    m=0
-##    while not dist:
-##        m+=1
-##        z_inds=np.where(np.abs(python[1]-theorique[1])<m)[0]
-##        for i in z_inds:
-##            dist.append(abs(python[0][i]-theorique[0])**2)
-##    ind=np.where(dist==min(dist))[0][0]
-#    m=0
-#    while not dist:
-#        m+=1
-#        z_inds=np.where(np.abs(python[1]-theorique[1])<m)[0]
-#        for i in z_inds:
-#            dist.append(((python[0][i]-theorique[0])**2+(python[1][i]-theorique[1])**2)**(1/2))
-#    ind=np.where(dist==min(dist))[0][0]
-#    return [python[1][z_inds[ind]], python[0][z_inds[ind]]], min(dist)
-#
-
-
-
