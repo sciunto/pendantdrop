@@ -29,8 +29,6 @@ def _find_circle(edges, hough_radii):
         (center_x, center_y, radius, tip_position)
 
     """
-
-
     hough_res = hough_circle(edges, hough_radii, full_output=True)
 
     centers = []
@@ -59,16 +57,23 @@ def _find_circle(edges, hough_radii):
 
 def _fit_circle_tip_hough_transform(shape, R, Z):
     """
-    Fit a circle with a Hough transform on the points between the equator
-    and the tip.
+    Fit a circle with a Hough transform on the points between
+    the '45th parallel' and the tip.
 
+    Parameters
+    ----------
+    shape : tuple
+        Image shape.
+    R : array
+        Radial coordinates.
+    Z : array
+        Vertical coordinates.
 
     Returns
     -------
     parameters : tuple
         (center_x, center_y, radius, tip_position)
     """
-
     # Assume upward bubble orientation
     mask = Z < Z.min() + 0.5 * (Z[R.argmin()] - Z.min())
     edges = np.full(shape, False, dtype=bool)
@@ -88,8 +93,24 @@ def _fit_circle_tip_hough_transform(shape, R, Z):
 
 
 def _fit_circle_tip_ransac(shape, R, Z):
+    """
+    Fit the tip of the drop with a circle by RANSAC.
 
+    Parameters
+    ----------
+    shape : tuple
+        Image shape.
+    R : array
+        Radial coordinates.
+    Z : array
+        Vertical coordinates.
 
+    Returns
+    -------
+    parameters : tuple
+        (center_x, center_y, radius, tip_position)
+
+    """
     points = np.column_stack((R, Z))
 
     model_robust, inliers = measure.ransac(points, measure.CircleModel,
@@ -105,7 +126,23 @@ def _fit_circle_tip_ransac(shape, R, Z):
 
 def fit_circle_tip(shape, R, Z, method='ransac'):
     """
+    Fit the tip of the drop with a circle.
 
+    Parameters
+    ----------
+    shape : tuple
+        Image shape.
+    R : array
+        Radial coordinates.
+    Z : array
+        Vertical coordinates.
+    method : str, optional
+        Name of the method: ransac or hough.
+
+    Returns
+    -------
+    parameters : tuple
+        (center_x, center_y, radius, tip_position)
     """
     if method.lower() == 'ransac':
         return _fit_circle_tip_ransac(shape, R, Z)
@@ -123,6 +160,12 @@ def detect_edges(image):
     ----------
     image : ndarray
         Grayscale image.
+
+
+    Returns
+    -------
+    results : tuple
+        (edges, R_edges, Z_edges)
     """
     # Use the mean grayscale value of the image to get the contour.
     level = image.mean()
