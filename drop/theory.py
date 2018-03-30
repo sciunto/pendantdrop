@@ -10,66 +10,6 @@ from scipy.interpolate import interp1d
 from scipy.integrate import odeint
 
 
-
-def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib):
-    """
-
-    Parameters
-    ----------
-
-    calib : scalar
-        Calibration in mm per px.
-
-    """
-    gamma = variables[0]
-    theta = variables[1]
-    center_y = variables[2]
-
-
-
-    rho_g = 1000 * 9.81
-    lc = np.sqrt(gamma / rho_g)  # We give capillary lengthy : may be given by the user later on
-    r0 = radius * calib
-    bond_number = (r0 / lc)**2
-
-
-    tip_x = guess_tipx
-
-    print(center_y)
-
-    base_center = [center_y, center_x]
-
-    R, Z = theoretical_contour(image_shape, bond_number, tip, calib)
-
-    R = R * r0
-    Z = Z * r0
-
-    # Cut
-    Z0 = image_shape[0] - tip[1]
-    Zmax = Z0 * calib #maximum possible values of Z to be upgraded
-    R = R[Z < Zmax]
-    Z = Z[Z < Zmax]
-
-    # Symetrize the contour
-    R = np.concatenate((-R, R))
-    Z = np.concatenate((Z, Z))
-
-    # rescales contour to the image axes
-    R = R / calib + center_y
-    Z = Z / calib + tip_x - 1
-
-    # Rotate
-    R, Z = rotate_lines(R, Z, base_center, theta)
-
-
-    aa = np.where(Z>max(Z_edges))
-    R = np.delete(R, aa[0])
-    Z = np.delete(Z, aa[0])
-
-    return R, Z
-
-
-
 def young_laplace_diff_equation(variables, space, bond_number):
     """
     Return the derivatives corresponding to the Young-Laplace equation.
@@ -121,7 +61,7 @@ def theoretical_contour(image_shape, bond_number, tip, calib):
     solution = odeint(young_laplace_diff_equation,
                       (0, 0, 0), s_tilde,
                       args=(bond_number,))
-    #phi = solution[:, 0]
+    # NOTE: phi = solution[:, 0]
 
     # TODO WARNING, non dimentionalized by lc to be consistant with Jonas
     R = solution[:, 1]

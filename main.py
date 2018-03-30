@@ -18,14 +18,14 @@ import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 from scipy.optimize import fmin_powell
 
-from drop.theory import rotate_lines, young_laplace
-from drop.edge import fit_circle_tip
-
-
-from drop.optimization import error_f
-
-from drop.edge import detect_edges
 from drop.io import load_image
+from drop.edge import fit_circle_tip
+from drop.edge import detect_edges
+from drop.theory import rotate_lines
+from drop.optimization import young_laplace, deviation_edge_model
+
+
+
 
 from skimage.draw import circle, circle_perimeter
 
@@ -95,7 +95,8 @@ if __name__ == '__main__':
 
 
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
-    res = minimize(error_f, variables,
+    res = minimize(deviation_edge_model,
+                   variables,
                    args=(edges.shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib),
                    method='Powell',
                    options={'direc':initial_directions,
