@@ -12,6 +12,31 @@ from skimage.feature import peak_local_max
 from skimage import measure
 
 
+def detect_edges(image):
+    """
+    Detect the edge of the drop on the image.
+
+    Parameters
+    ----------
+    image : ndarray
+        Grayscale image.
+
+
+    Returns
+    -------
+    results : tuple
+        (edges, R_edges, Z_edges)
+    """
+    # Use the mean grayscale value of the image to get the contour.
+    level = image.mean()
+    contours = measure.find_contours(image, level)
+    Z_edges, R_edges = np.column_stack(contours[0])
+    # Make a binary image
+    edges = np.full(image.shape, False, dtype=bool)
+    edges[Z_edges.astype(np.int), R_edges.astype(np.int)] = True
+    return edges, R_edges, Z_edges
+
+
 def _find_circle(edges, hough_radii):
     """
     Find the best circle to model points marked as `True`.
@@ -54,7 +79,6 @@ def _find_circle(edges, hough_radii):
     return center_x, center_y, radius, tip
 
 
-
 def _fit_circle_tip_hough_transform(shape, R, Z):
     """
     Fit a circle with a Hough transform on the points between
@@ -91,7 +115,6 @@ def _fit_circle_tip_hough_transform(shape, R, Z):
     return _find_circle(edges, hough_radii)
 
 
-
 def _fit_circle_tip_ransac(shape, R, Z, debug=False):
     """
     Fit the tip of the drop with a circle by RANSAC.
@@ -120,7 +143,6 @@ def _fit_circle_tip_ransac(shape, R, Z, debug=False):
 
     points = np.column_stack((R_cropped, Z_cropped))
 
-
     model_robust, inliers = measure.ransac(points, measure.CircleModel,
                                            min_samples=4,
                                            residual_threshold=.1,
@@ -137,9 +159,9 @@ def _fit_circle_tip_ransac(shape, R, Z, debug=False):
         axes.add_patch(circle)
         axes.plot(R, Z, 'g.')
         axes.plot(points[inliers, 0], points[inliers, 1],
-                 'b.', markersize=1, label='inliers')
+                  'b.', markersize=1, label='inliers')
         axes.plot(points[~inliers, 0], points[~inliers, 1],
-                 'r.', markersize=1, label='outliers')
+                  'r.', markersize=1, label='outliers')
         plt.legend()
 
     return cx, cy, r, tip
@@ -175,26 +197,40 @@ def fit_circle_tip(shape, R, Z, method='ransac', debug=False):
         raise ValueError('Wrong parameter value for `method`.')
 
 
-def detect_edges(image):
+def guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y):
     """
-    Detect the edge of the drop on the image.
-
-    Parameters
-    ----------
-    image : ndarray
-        Grayscale image.
+    Guess values for the angle and the tip position.
 
 
     Returns
     -------
-    results : tuple
-        (edges, R_edges, Z_edges)
+    guessed_parameters : tuple
+        (theta, tipx, tipy)
     """
-    # Use the mean grayscale value of the image to get the contour.
-    level = image.mean()
-    contours = measure.find_contours(image, level)
-    Z_edges, R_edges = np.column_stack(contours[0])
-    # Make a binary image
-    edges = np.full(image.shape, False, dtype=bool)
-    edges[Z_edges.astype(np.int), R_edges.astype(np.int)] = True
-    return edges, R_edges, Z_edges
+    c_center = np.array((center_y, center_x))
+
+    # assume orientation base at bottom of image
+    pixels_on_baseline = np.where(edges[-1, :] == True)
+    baseline_center = (np.mean((pixels_on_baseline[0],
+                                pixels_on_baseline[-1])),
+                       edges.shape[0]-1)
+
+    distance_base_to_center = baseline_center - c_center
+    hyp = np.linalg.norm(distance_base_to_center)
+    opp = np.abs(baseline_center[0] - c_center[0])
+
+    theta = np.arcsin(opp/hyp)
+
+    shift = (edges.shape[0]-1-tip[1]) * np.tan(np.abs(theta))
+    if center_y > baseline_center[0] and theta > 0:
+        guess_tipy = baseline_center[0] + shift
+    else:
+        guess_tipy = baseline_center[0] - shift
+
+    ind_min = np.argmin(np.abs(R_edges - guess_tipy))
+    guess_tipx = Z_edges[ind_min]
+    guess_tipy = Z_edges[ind_min]
+    # convert
+    theta *= 180 / np.pi
+
+    return theta, guess_tipx, guess_tipy
