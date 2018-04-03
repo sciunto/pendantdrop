@@ -39,14 +39,14 @@ def young_laplace_diff_equation(variables, space, bond_number):
     phi, r, z = variables
 
     if r != 0:
-        phip = 2 - bond_number * z - np.sin(phi) / r
+        phi_prime = 2 - bond_number * z - np.sin(phi) / r
     else:
-        phip = 1
+        phi_prime = 1
 
-    rp = np.cos(phi)
-    zp = np.sin(phi)
+    r_prime = np.cos(phi)
+    z_prime = np.sin(phi)
 
-    return phip, rp, zp
+    return phi_prime, r_prime, z_prime
 
 
 def theoretical_contour(image_shape, bond_number, tip, calib):
@@ -66,7 +66,6 @@ def theoretical_contour(image_shape, bond_number, tip, calib):
     The profile is non-dimensionalized by the tip radius.
 
     """
-
     # TODO 10 is an arbitrary value. Need to check if an increase is needed... or something
     s_tilde = np.linspace(0, 10, 1e3)
     solution = odeint(young_laplace_diff_equation,
@@ -74,7 +73,6 @@ def theoretical_contour(image_shape, bond_number, tip, calib):
                       args=(bond_number,))
     # NOTE: phi = solution[:, 0]
 
-    # TODO WARNING, non dimentionalized by lc to be consistant with Jonas
     R = solution[:, 1]
     Z = solution[:, 2]
 

@@ -58,16 +58,15 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
 
     # Cut
     Z0 = image_shape[0] - tip[1]
-    Zmax = Z0 * calib # maximum possible values of Z to be upgraded
+    Zmax = Z0 * calib  # maximum possible values of Z to be upgraded
     R = R[Z < Zmax]
     Z = Z[Z < Zmax]
 
-
-    # rescales contour to the image axes
+    # Rescales contour to the image axes
     R = R / calib + center_y
     Z = Z / calib + guess_tipx - 1
 
-    aa = np.where(Z>max(Z_edges))
+    aa = np.where(Z > np.max(Z_edges))
     R = np.delete(R, aa[0])
     Z = np.delete(Z, aa[0])
 

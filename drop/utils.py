@@ -49,4 +49,4 @@ def rotate(x, y, cx, cy, angle):
                                  [-s, c]])
     m = np.dot(vector.T, rotation_matrix)
 
-    return  m.T[0] + cx, m.T[1] + cy
+    return m.T[0] + cx, m.T[1] + cy
