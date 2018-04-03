@@ -12,28 +12,33 @@ from drop.utils import split_profile
 from drop.theory import rotate_lines, theoretical_contour
 
 
-def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib):
+def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
+                  tip, guess_tipx, center_x,
+                  calib, rho=1000, gravity=9.81):
     """
+    Returns the Young Laplace solution resized and oriented to the image.
 
     Parameters
     ----------
 
     calib : scalar
         Calibration in mm per px.
+    rho : scalar, optional
+        Fluid density.
+    gravity : scalar, optional
+        Gravitational acceleration.
 
+    Returns
+    -------
     """
     gamma = variables[0]
     theta = variables[1]
     center_y = variables[2]
 
-
-
-    rho_g = 1000 * 9.81
-    lc = np.sqrt(gamma / rho_g)  # We give capillary lengthy : may be given by the user later on
+    rho_g = rho * gravity
+    capillary_length = np.sqrt(gamma / rho_g)
     r0 = radius * calib
-    bond_number = (r0 / lc)**2
-
-    tip_x = guess_tipx
+    bond_number = (r0 / capillary_length)**2
 
     R, Z = theoretical_contour(image_shape, bond_number, tip, calib)
 
@@ -46,7 +51,7 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_t
     Z = np.concatenate((Z, Z))
 
     # Rotate
-    base_center = np.array((0, (center_x - tip_x + 1) * calib))
+    base_center = np.array((0, (center_x - guess_tipx + 1) * calib))
     R, Z = rotate_lines(R, Z, base_center, theta)
     R = np.array(R)
     Z = np.array(Z)
@@ -60,7 +65,7 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_t
 
     # rescales contour to the image axes
     R = R / calib + center_y
-    Z = Z / calib + tip_x - 1
+    Z = Z / calib + guess_tipx - 1
 
     aa = np.where(Z>max(Z_edges))
     R = np.delete(R, aa[0])
@@ -75,10 +80,13 @@ def squared_distance(R, Z, R_edges, Z_edges):
 
     Theoretical points are interpolated on experimental ones.
 
+    Parameters
+    ----------
+
+    Returns
+    -------
 
     """
-    # TODO: use of extrapolate due to the rotation.
-    # We can be smarter and integrate over a longer distance...
     R_theo_interpolator = interp1d(Z, R, kind='linear', fill_value='extrapolate')
     R_theo_interpolated = R_theo_interpolator(Z_edges)
     return (R_theo_interpolated - R_edges)**2
@@ -87,10 +95,13 @@ def squared_distance(R, Z, R_edges, Z_edges):
 def deviation_edge_model(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
     """
-    print("variables:",  variables)
-
-
     R, Z = young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib)
 
     # Split profiles to compute errors on each side

@@ -6,7 +6,6 @@ Created on Mon Feb 19 17:03:15 2018
 """
 import numpy as np
 
-from scipy.interpolate import interp1d
 from scipy.integrate import odeint
 from drop.utils import rotate
 
@@ -58,6 +57,10 @@ def theoretical_contour(image_shape, bond_number, tip, calib):
     Parameters
     ----------
 
+
+    Returns
+    -------
+
     Notes
     -----
     The profile is non-dimensionalized by the tip radius.
@@ -81,8 +84,22 @@ def theoretical_contour(image_shape, bond_number, tip, calib):
 def rotate_lines(R, Z, center, theta):
     """
     Rotate with specific angle conversion for our images.
+
+    Parameters
+    ----------
+    R : array
+        Radial coordinates.
+    Z : array
+        Vertical coordinates.
+    center : tuple
+        Rotation center coordinates.
+    theta : scalar
+        Rotation angle.
+
+    Returns
+    -------
+
+
     """
     theta = - theta * np.pi / 180
-
     return rotate(R, Z, center[0], center[1], theta)
-
