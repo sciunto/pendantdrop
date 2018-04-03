@@ -11,6 +11,13 @@ import numpy as np
 def split_profile(R, Z):
     """
     Split a profile in two parts to get a single value for each Z.
+
+    Parameters
+    ----------
+    R : array
+        Radial coordinates.
+    Z : array
+        Vertical coordinates.
     """
     # Assumption on bubble upward orientation
     mask_left = R < R[Z.argmin()]
