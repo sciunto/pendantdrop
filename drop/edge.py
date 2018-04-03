@@ -21,7 +21,6 @@ def detect_edges(image):
     image : ndarray
         Grayscale image.
 
-
     Returns
     -------
     results : tuple

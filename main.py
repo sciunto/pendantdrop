@@ -46,7 +46,7 @@ if __name__ == '__main__':
     edges, R_edges, Z_edges = detect_edges(image1)
 
 
-    center_x, center_y, radius, tip = fit_circle_tip(image1.shape,
+    center_x, center_y, radius, tip = fit_circle_tip(edges.shape,
                                                      R_edges, Z_edges,
                                                      method='ransac',
                                                      debug=False)
@@ -56,15 +56,20 @@ if __name__ == '__main__':
     theta, guess_tipx, guess_tipy = guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y)
 
 
-    initial_gammas=np.divide([-.02,.02,-.02,.02],10)#,-.005,.005,-.001,.001],10)
+    initial_gammas = np.divide([-.02, .02, -.02, .02], 10)    #,-.005,.005,-.001,.001],10)
     #initial_radii=np.divide([-15,-15,15,15],10)#,-5,5,-1,1],10)
-    initial_thetas=np.divide([-.02,-.02,.02,.02],5)*180/np.pi#,-.005,.005,-.001,.001],10),0)*180/np.pi#[-.001,.001]#[-.001,.001]#
+    initial_thetas = np.divide([-.02, -.02 , .02, .02], 5) * 180 / np.pi  #,-.005,.005,-.001,.001],10),0)*180/np.pi#[-.001,.001]#[-.001,.001]#
     #initial_gammas=[.001,.002,.003,.004,.005]
     #initial_thetas=[1/radius*180/np.pi,1/radius*180/np.pi,-1/radius*180/np.pi,-1/radius*180/np.pi]#,5/radius*180/np.pi]
-    initial_center_y=np.divide([1,1,-1,-1],10)#,-5,5,-1,1],10)
+    initial_center_y = np.divide([1, 1, -1, -1], 10)  # ,-5,5,-1,1],10)
     #
-    initial_directions=np.transpose(np.array([initial_gammas,initial_thetas,initial_center_y]))#,initial_radii,initial_center_yb]))#,initial_center_yb]))#,initial_center_xb]))
-    variables=[gamma0,theta,center_y]
+    initial_directions = np.transpose(np.array([initial_gammas,
+                                              initial_thetas,
+                                              initial_center_y]))
+
+    #,initial_radii,initial_center_yb]))#,initial_center_yb]))#,initial_center_xb]))
+
+    variables=[gamma0, theta, center_y]
 
 
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
@@ -80,8 +85,6 @@ if __name__ == '__main__':
     #,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
     optimal_variables = res.x
 
-    #res = fmin_powell(error_f, variables, direc=initial_directions,maxiter=100)#'xtol': 1e-3,'ftol':1e-2, 'disp': True})#,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
-    #optimal_variables=res
 
 
     R, Z = young_laplace(optimal_variables, edges.shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib)
