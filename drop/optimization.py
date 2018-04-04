@@ -20,6 +20,21 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
 
     Parameters
     ----------
+    variables : tuple
+        (surface tension, angle, center_y)
+    image_shape : tuple
+        Shape of the image.
+    radius : scalar
+
+    R_edges : array
+
+    Z_edges : array
+
+    tip :
+
+    guess_tipx :
+
+    center_x :
 
     calib : scalar
         Calibration in mm per px.
@@ -30,6 +45,8 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
 
     Returns
     -------
+    coordinates : tuple
+        (R, Z)
     """
     gamma = variables[0]
     theta = variables[1]
@@ -81,9 +98,18 @@ def squared_distance(R, Z, R_edges, Z_edges):
 
     Parameters
     ----------
+    R : array
+        Radial coordinates of the theoretical contour.
+    Z : array
+        Vertical coordinates of the theoretical contour.
+    R_edges : array
+        Radial coordinates of the edge.
+    Z_edges : array
+        Vertical coordinates of the edge.
 
     Returns
     -------
+    distance
 
     """
     R_theo_interpolator = interp1d(Z, R, kind='linear', fill_value='extrapolate')
@@ -97,9 +123,28 @@ def deviation_edge_model(variables, image_shape, radius, R_edges, Z_edges, tip, 
 
     Parameters
     ----------
+    variables : tuple
+        (surface tension, angle, center_y)
+    image_shape : tuple
+        Shape of the image.
+    radius : scalar
+
+    R_edges : array
+        Radial coordinates of the edge.
+    Z_edges : array
+        Vertical coordinates of the edge.
+    tip :
+
+    guess_tipx :
+
+    center_x :
+
+    calib :
+
 
     Returns
     -------
+    RMS
     """
     R, Z = young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib)
 

@@ -200,6 +200,20 @@ def guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y):
     """
     Guess values for the angle and the tip position.
 
+    Parameters
+    ----------
+    edges : boolean image
+        Image containing the edges to fit.
+    R_edges : array
+        Radial coordinates of the edge.
+    Z_edges : array
+        Vertical coordinates of the edge.
+    tip :
+
+    center_x :
+
+    center_y :
+
 
     Returns
     -------
