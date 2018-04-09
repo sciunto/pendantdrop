@@ -98,6 +98,7 @@ def _fit_circle_tip_hough_transform(shape, R, Z):
         (center_x, center_y, radius, tip_position)
     """
     # Assume upward bubble orientation
+    # Mask to select the 45th parallel
     mask = Z < Z.min() + 0.5 * (Z[R.argmin()] - Z.min())
     edges = np.full(shape, False, dtype=bool)
     edges[Z[mask].astype(np.int), R[mask].astype(np.int)] = True
@@ -117,6 +118,8 @@ def _fit_circle_tip_hough_transform(shape, R, Z):
 def _fit_circle_tip_ransac(shape, R, Z, debug=False):
     """
     Fit the tip of the drop with a circle by RANSAC.
+
+    The points between the '45th parallel' and the tip are considered.
 
     Parameters
     ----------
