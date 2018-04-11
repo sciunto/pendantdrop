@@ -38,8 +38,8 @@ if __name__ == '__main__':
     # Arbitrary first guess for gamma
     gamma0 = 0.040 # N/m
 
-    #image_path = 'uEye_Image_002767.bmp'
-
+    # image_path = 'uEye_Image_002767.bmp'
+    # zoom = ((814, 1020), (1920, 1772))
 
     image1 = load_image(image_path, region=zoom)
 
