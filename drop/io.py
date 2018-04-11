@@ -5,9 +5,40 @@ Created on Wed Mar 28 18:57:09 2018
 
 @author: fr
 """
-
-
 from skimage import io
+
+
+def _auto_crop(image, expand=20):
+    """
+    Automated-crop based on the biggest darkest object.
+
+
+    Parameters
+    ----------
+    image : ndarray
+        Full image.
+    expand : scalar
+        Expand by this number of pixels.
+
+    Returns
+    -------
+    cropped
+
+
+    Notes
+    -----
+    The original image is thresholded with a minimum threshold to get the
+    darkest pixels.
+    """
+    import numpy as np
+    from skimage import measure
+    from skimage import filters
+    darkest = image < filters.threshold_minimum(image)
+    labels = measure.label(darkest)
+    props = measure.regionprops(labels)
+    areas = np.array([prop.area for prop in props])
+    bb = props[areas.argmax()].bbox
+    return image[bb[0]-expand:bb[2]+expand, bb[1]-expand:bb[3]+expand]
 
 
 def load_image(path, region=None):
@@ -19,7 +50,7 @@ def load_image(path, region=None):
     path : string
         File path.
     region : tuple, optional
-        Corner positions to crop the image.
+        Tuple: corner positions to crop the image.
 
     Returns
     -------
