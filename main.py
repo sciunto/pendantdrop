@@ -43,7 +43,8 @@ if __name__ == '__main__':
 
     image1 = load_image(image_path, region=zoom)
 
-    edges, R_edges, Z_edges = detect_edges(image1)
+    edges, R_edges, Z_edges = detect_edges(image1,
+                                           method='contour')
 
 
     center_x, center_y, radius, tip = fit_circle_tip(edges.shape,

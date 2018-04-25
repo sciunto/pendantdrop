@@ -8,11 +8,11 @@ Created on Thu Mar 29 10:53:58 2018
 
 import numpy as np
 from skimage.transform import hough_circle
-from skimage.feature import peak_local_max
+from skimage.feature import peak_local_max, canny
 from skimage import measure
 
 
-def detect_edges(image):
+def detect_edges(image, method='contour', **kwarg):
     """
     Detect the edge of the drop on the image.
 
@@ -20,19 +20,29 @@ def detect_edges(image):
     ----------
     image : ndarray
         Grayscale image.
+    filter : string, optional
+        'contour' or 'canny'
 
     Returns
     -------
     results : tuple
         (edges, R_edges, Z_edges)
     """
-    # Use the mean grayscale value of the image to get the contour.
-    level = image.mean()
-    contours = measure.find_contours(image, level)
-    Z_edges, R_edges = np.column_stack(contours[0])
-    # Make a binary image
-    edges = np.full(image.shape, False, dtype=bool)
-    edges[Z_edges.astype(np.int), R_edges.astype(np.int)] = True
+    if method.lower() == 'contour':
+        # Use the mean grayscale value of the image to get the contour.
+        level = image.mean()
+        contours = measure.find_contours(image, level)
+        Z_edges, R_edges = np.column_stack(contours[0])
+        # Make a binary image
+        edges = np.full(image.shape, False, dtype=bool)
+        edges[Z_edges.astype(np.int), R_edges.astype(np.int)] = True
+    elif method.lower() == 'canny':
+        edges = canny(image, **kwarg)
+        Z_edges=np.where(edges==True)[0]
+        R_edges=np.where(edges==True)[1]
+    else:
+        raise ValueError('Wrong method value')
+
     return edges, R_edges, Z_edges
 
 
