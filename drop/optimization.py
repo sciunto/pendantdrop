@@ -57,7 +57,7 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
     r0 = radius * calib
     bond_number = (r0 / capillary_length)**2
 
-    R, Z = theoretical_contour(image_shape, bond_number, tip, calib)
+    R, Z = theoretical_contour(bond_number, tip, calib)
 
     # Rescale
     R = R * r0
