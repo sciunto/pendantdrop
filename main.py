@@ -12,11 +12,8 @@ Created on Thu Mar 22 14:15:31 2018
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-
-
-from scipy.optimize import minimize
 from scipy.optimize import fmin_powell
+from skimage.draw import circle, circle_perimeter
 
 from drop.io import load_image
 from drop.edge import fit_circle_tip
@@ -26,9 +23,6 @@ from drop.theory import rotate_lines
 from drop.optimization import young_laplace, deviation_edge_model
 
 
-
-
-from skimage.draw import circle, circle_perimeter
 
 if __name__ == '__main__':
 
