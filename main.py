@@ -12,7 +12,7 @@ Created on Thu Mar 22 14:15:31 2018
 import numpy as np
 import matplotlib.pyplot as plt
 
-from scipy.optimize import fmin_powell
+from scipy.optimize import fmin_powell, minimize
 from skimage.draw import circle, circle_perimeter
 
 from drop.io import load_image
