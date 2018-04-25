@@ -8,6 +8,33 @@ Created on Thu Mar 29 17:11:22 2018
 import numpy as np
 
 
+def orthogonal_norm(data, curve):
+    """
+    Calculate the orthogonal norm between data points and a curve.
+
+    The assumption of a dense representation of the curve is made and is
+    crucial for the accuracy of the norm.
+
+    Parameters
+    ----------
+    data : array
+        Data points.
+    curve : array
+        Points representing the curve.
+
+    Returns
+    -------
+    norm : scalar
+        L2 orthogonal norm.
+    """
+    norm = 0
+    for dat in data:
+        norm_fist_point = [np.linalg.norm(el - dat) for el in curve]
+        idx = np.argmin(norm_fist_point)
+        norm += norm_fist_point[idx]
+    return norm
+
+
 def split_profile(R, Z):
     """
     Split a profile in two parts to get a single value for each Z.
