@@ -51,13 +51,12 @@ if __name__ == '__main__':
     theta, guess_tipx, guess_tipy = guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y)
 
 
-    initial_gammas = np.divide([-.02, .02, -.02, .02], 10)    #,-.005,.005,-.001,.001],10)
-    #initial_radii=np.divide([-15,-15,15,15],10)#,-5,5,-1,1],10)
-    initial_thetas = np.divide([-.02, -.02 , .02, .02], 5) * 180 / np.pi  #,-.005,.005,-.001,.001],10),0)*180/np.pi#[-.001,.001]#[-.001,.001]#
-    #initial_gammas=[.001,.002,.003,.004,.005]
-    #initial_thetas=[1/radius*180/np.pi,1/radius*180/np.pi,-1/radius*180/np.pi,-1/radius*180/np.pi]#,5/radius*180/np.pi]
-    initial_center_y = np.divide([1, 1, -1, -1], 10)  # ,-5,5,-1,1],10)
-    #
+
+    print('tip:')
+    print(tip, guess_tipx, guess_tipy)
+    initial_gammas = np.divide([-.02, .02, -.02, .02], 10)
+    initial_thetas = np.divide([-.02, -.02 , .02, .02], 5) * 180 / np.pi
+    initial_center_y = np.divide([1, 1, -1, -1], 10)
     initial_directions = np.transpose(np.array([initial_gammas,
                                               initial_thetas,
                                               initial_center_y]))
