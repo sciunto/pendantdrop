@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     #,initial_radii,initial_center_yb]))#,initial_center_yb]))#,initial_center_xb]))
 
-    variables=[gamma0, theta, center_y]
+    variables = (gamma0, theta, center_y)
 
 
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
@@ -72,10 +72,10 @@ if __name__ == '__main__':
                    variables,
                    args=(edges.shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib),
                    method='Powell',
-                   options={'direc':initial_directions,
-                            'maxiter':100,
+                   options={'direc': initial_directions,
+                            'maxiter': 100,
                             'xtol': 1e-3,
-                            'ftol':1e-2,
+                            'ftol': 1e-2,
                             'disp': True})
     #,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
     optimal_variables = res.x
