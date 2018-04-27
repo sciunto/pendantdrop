@@ -59,7 +59,7 @@ if __name__ == '__main__':
     #tip = np.array((guess_tipx, guess_tipy))
 
     initial_gammas = np.divide([-.02, .02, -.02, .02], 10)
-    initial_thetas = np.divide([-.02, -.02 , .02, .02], 5) * 180 / np.pi
+    initial_thetas = np.divide([-.02, -.02 , .02, .02], 5)
     initial_center_y = np.divide([1, 1, -1, -1], 10)
     initial_directions = np.transpose(np.array([initial_gammas,
                                               initial_thetas,

@@ -256,7 +256,5 @@ def guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y):
     ind_min = np.argmin(np.abs(R_edges - guess_tipy))
     guess_tipx = Z_edges[ind_min]
     guess_tipy = R_edges[ind_min]
-    # convert
-    theta *= 180 / np.pi
 
     return theta, guess_tipx, guess_tipy

@@ -102,5 +102,5 @@ def rotate_lines(R, Z, center, theta):
 
 
     """
-    theta = - theta * np.pi / 180
+    theta = - theta
     return rotate(R, Z, center[0], center[1], theta)
