@@ -70,7 +70,7 @@ if __name__ == '__main__':
     # http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf
     res = minimize(deviation_edge_model,
                    variables,
-                   args=(radius, R_edges, Z_edges, center_x, calib),
+                   args=(center_x, radius, R_edges, Z_edges, calib),
                    method='Powell',
                    options={'direc': initial_directions,
                             'maxiter': 100,

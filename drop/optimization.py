@@ -110,7 +110,7 @@ def squared_distance(R, Z, R_edges, Z_edges):
     return (R_theo_interpolated - R_edges)**2
 
 
-def deviation_edge_model(variables, radius, R_edges, Z_edges, center_x, calib):
+def deviation_edge_model(variables, center_x, radius, R_edges, Z_edges, calib):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
 
