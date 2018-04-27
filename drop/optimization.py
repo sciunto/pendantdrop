@@ -12,7 +12,7 @@ from drop.utils import split_profile
 from drop.theory import rotate_lines, theoretical_contour
 
 
-def young_laplace(gamma, angle, center_y, radius, R_edges, Z_edges, center_x,
+def young_laplace(gamma, angle, center_y, center_x, radius, R_edges, Z_edges,
                   calib, rho=1000, gravity=9.81):
     """
     Returns the Young Laplace solution resized and oriented to the image.
@@ -133,7 +133,7 @@ def deviation_edge_model(variables, radius, R_edges, Z_edges, center_x, calib):
     -------
     RMS
     """
-    R, Z = young_laplace(*variables, radius, R_edges, Z_edges, center_x, calib)
+    R, Z = young_laplace(*variables, center_x, radius, R_edges, Z_edges, calib)
 
     # Split profiles to compute errors on each side
     R_left, Z_left, R_right, Z_right = split_profile(R, Z)
