@@ -68,7 +68,7 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
     Z = np.concatenate((Z, Z))
 
     # Rotate
-    base_center = np.array((0, (center_x - guess_tipx + 1) * calib))
+    base_center = np.array((0, (center_x - guess_tipx) * calib))
     R, Z = rotate_lines(R, Z, base_center, theta)
     R = np.array(R)
     Z = np.array(Z)
