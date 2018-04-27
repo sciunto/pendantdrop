@@ -64,8 +64,11 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
     Z = Z * r0
 
     # Symetrize the contour
-    R = np.concatenate((-R, R))
-    Z = np.concatenate((Z, Z))
+    # Eliminate the first point as it is R=0, Z=0
+    # To do not count it twice.
+    # Then, flip the arrays to get points nicely ordered.
+    R = np.concatenate((-R[1:][::-1], R))
+    Z = np.concatenate((Z[1:][::-1], Z))
 
     # Rotate
     base_center = np.array((0, (center_x - guess_tipx) * calib))
@@ -112,6 +115,7 @@ def squared_distance(R, Z, R_edges, Z_edges):
     distance
 
     """
+    # np.seterr(all='raise')
     R_theo_interpolator = interp1d(Z, R, kind='linear', fill_value='extrapolate')
     R_theo_interpolated = R_theo_interpolator(Z_edges)
     return (R_theo_interpolated - R_edges)**2

@@ -69,7 +69,6 @@ if __name__ == '__main__':
 
     variables = (gamma0, theta, center_y)
 
-
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
     res = minimize(deviation_edge_model,
                    variables,
@@ -77,8 +76,8 @@ if __name__ == '__main__':
                    method='Powell',
                    options={'direc': initial_directions,
                             'maxiter': 100,
-                            'xtol': 1e-3,
-                            'ftol': 1e-2,
+                            'xtol': 1e-4,
+                            'ftol': 1e-4,
                             'disp': True})
     #,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
     optimal_variables = res.x
@@ -108,7 +107,7 @@ if __name__ == '__main__':
     circle = plt.Circle((center_y, center_x), radius=radius, color='c', fill=False)
     ax.add_patch(circle)
     plt.plot(R_edges, Z_edges, '*g', markersize=1)
-    plt.plot(R, Z, 'ro', markersize=1)
+    plt.plot(R, Z, 'r-o', markersize=2)
 
 
     #plt.plot([base_center[0], tip[0]], [base_center[1], tip[1]], '-y')

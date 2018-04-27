@@ -66,9 +66,11 @@ def theoretical_contour(bond_number, calib):
     The profile is non-dimensionalized by the tip radius.
 
     """
-    # TODO 10 is an arbitrary value.
+    s_max = 10
+    num_points = 1e3
+    # TODO s_max is an arbitrary value.
     # Need to check if an increase is needed... or something.
-    s_tilde = np.linspace(0, 10, 1e3)
+    s_tilde = np.linspace(0, s_max, num_points)
     solution = odeint(young_laplace_diff_equation,
                       (0, 0, 0), s_tilde,
                       args=(bond_number,))
