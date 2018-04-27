@@ -13,7 +13,7 @@ from drop.theory import rotate_lines, theoretical_contour
 
 
 def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
-                  tip, guess_tipx, center_x,
+                  tip, center_x,
                   calib, rho=1000, gravity=9.81):
     """
     Returns the Young Laplace solution resized and oriented to the image.
@@ -71,7 +71,7 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
     Z = np.concatenate((Z[1:][::-1], Z))
 
     # Rotate
-    base_center = np.array((0, (center_x - guess_tipx) * calib))
+    base_center = np.array((0, (center_x - tip[1]) * calib))
     R, Z = rotate_lines(R, Z, base_center, theta)
     R = np.array(R)
     Z = np.array(Z)
@@ -84,7 +84,7 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
 
     # Rescales contour to the image axes
     R = R / calib + center_y
-    Z = Z / calib + guess_tipx
+    Z = Z / calib + tip[1]
 
     aa = np.where(Z > np.max(Z_edges))
     R = np.delete(R, aa[0])
@@ -121,7 +121,7 @@ def squared_distance(R, Z, R_edges, Z_edges):
     return (R_theo_interpolated - R_edges)**2
 
 
-def deviation_edge_model(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib):
+def deviation_edge_model(variables, image_shape, radius, R_edges, Z_edges, tip, center_x, calib):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
 
@@ -150,7 +150,7 @@ def deviation_edge_model(variables, image_shape, radius, R_edges, Z_edges, tip, 
     -------
     RMS
     """
-    R, Z = young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib)
+    R, Z = young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip, center_x, calib)
 
     # Split profiles to compute errors on each side
     R_left, Z_left, R_right, Z_right = split_profile(R, Z)

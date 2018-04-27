@@ -18,7 +18,7 @@ from skimage.draw import circle, circle_perimeter
 from drop.io import load_image
 from drop.edge import fit_circle_tip
 from drop.edge import detect_edges
-from drop.edge import guess_parameters
+from drop.edge import guess_angle
 from drop.theory import rotate_lines
 from drop.optimization import young_laplace, deviation_edge_model
 
@@ -27,7 +27,7 @@ from drop.optimization import young_laplace, deviation_edge_model
 if __name__ == '__main__':
 
     image_path = 'uEye_Image_000827.bmp'
-    zoom = ([100,1312], [800,1900])
+    zoom = ([100,1312], [400,1900])
     calib = 0.00124 / 400  #400 pixel = 1.24mm
     # Arbitrary first guess for gamma
     gamma0 = 0.040 # N/m
@@ -40,39 +40,34 @@ if __name__ == '__main__':
     edges, R_edges, Z_edges = detect_edges(image1,
                                            method='contour')
 
-
     center_x, center_y, radius, tip = fit_circle_tip(edges.shape,
                                                      R_edges, Z_edges,
                                                      method='ransac',
                                                      debug=False)
 
+    print(center_x, center_y)
 
     # Guess parameters
-    theta, guess_tipx, guess_tipy = guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y)
-
-
-
-    print('tip:')
-    print(tip, guess_tipx, guess_tipy)
-
+    # theta, guess_tipx, guess_tipy = guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y)
+    # It seems better to get the guess of the tip from the circle fit
+    theta = guess_angle(edges, tip, center_x, center_y)
     guess_tipy, guess_tipx = tip
-    #tip = np.array((guess_tipx, guess_tipy))
 
     initial_gammas = np.divide([-.02, .02, -.02, .02], 10)
-    initial_thetas = np.divide([-.02, -.02 , .02, .02], 5)
-    initial_center_y = np.divide([1, 1, -1, -1], 10)
+    initial_thetas = np.divide([-.02, -.02, .02, .02], 5)
+    initial_center_y = np.divide([1, 1, -1, -1], 1)
     initial_directions = np.transpose(np.array([initial_gammas,
                                               initial_thetas,
                                               initial_center_y]))
 
     #,initial_radii,initial_center_yb]))#,initial_center_yb]))#,initial_center_xb]))
 
-    variables = (gamma0, theta, center_y)
+    variables = np.array((gamma0, theta, center_y))
 
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
     res = minimize(deviation_edge_model,
                    variables,
-                   args=(edges.shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib),
+                   args=(edges.shape, radius, R_edges, Z_edges, tip, center_x, calib),
                    method='Powell',
                    options={'direc': initial_directions,
                             'maxiter': 100,
@@ -84,11 +79,11 @@ if __name__ == '__main__':
 
 
 
-    R, Z = young_laplace(optimal_variables, edges.shape, radius, R_edges, Z_edges, tip, guess_tipx, center_x, calib)
+    R, Z = young_laplace(optimal_variables, edges.shape, radius, R_edges, Z_edges, tip, center_x, calib)
 
 
-
-
+    print('directions:', initial_center_y)
+    print('ini vars:', variables)
     print('opt vars:', optimal_variables)
     center_yb, center_xb = rotate_lines([center_y], [center_x], tip, optimal_variables[1])
 
@@ -108,6 +103,7 @@ if __name__ == '__main__':
     ax.add_patch(circle)
     plt.plot(R_edges, Z_edges, '*g', markersize=1)
     plt.plot(R, Z, 'r-o', markersize=2)
+    plt.plot(center_y, center_x, 'bo')
 
 
     #plt.plot([base_center[0], tip[0]], [base_center[1], tip[1]], '-y')

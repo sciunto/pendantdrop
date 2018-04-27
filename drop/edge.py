@@ -209,6 +209,44 @@ def fit_circle_tip(shape, R, Z, method='ransac', debug=False):
         raise ValueError('Wrong parameter value for `method`.')
 
 
+def guess_angle(edges, tip, center_x, center_y):
+    """
+    Guess values for the angle and the tip position.
+
+    Parameters
+    ----------
+    edges : boolean image
+        Image containing the edges to fit.
+    tip :
+
+    center_x :
+
+    center_y :
+
+
+    Returns
+    -------
+    guessed_parameters : tuple
+        (theta, tipx, tipy)
+    """
+    c_center = np.array((center_y, center_x))
+
+    # assume orientation base at bottom of image
+    pixels_on_baseline = np.where(edges[-1, :] == True)
+    baseline_center = (np.mean((pixels_on_baseline[0],
+                                pixels_on_baseline[-1])),
+                       edges.shape[0]-1)
+
+    distance_base_to_center = baseline_center - c_center
+    hyp = np.linalg.norm(distance_base_to_center)
+    opp = np.abs(baseline_center[0] - c_center[0])
+
+    theta = np.arcsin(opp/hyp)
+
+    return theta
+
+
+
 def guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y):
     """
     Guess values for the angle and the tip position.
