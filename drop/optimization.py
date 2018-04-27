@@ -81,7 +81,7 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
 
     # Rescales contour to the image axes
     R = R / calib + center_y
-    Z = Z / calib + guess_tipx - 1
+    Z = Z / calib + guess_tipx
 
     aa = np.where(Z > np.max(Z_edges))
     R = np.delete(R, aa[0])
