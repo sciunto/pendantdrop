@@ -54,6 +54,10 @@ if __name__ == '__main__':
 
     print('tip:')
     print(tip, guess_tipx, guess_tipy)
+
+    guess_tipy, guess_tipx = tip
+    #tip = np.array((guess_tipx, guess_tipy))
+
     initial_gammas = np.divide([-.02, .02, -.02, .02], 10)
     initial_thetas = np.divide([-.02, -.02 , .02, .02], 5) * 180 / np.pi
     initial_center_y = np.divide([1, 1, -1, -1], 10)

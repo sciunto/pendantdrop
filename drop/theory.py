@@ -49,7 +49,7 @@ def young_laplace_diff_equation(variables, space, bond_number):
     return phi_prime, r_prime, z_prime
 
 
-def theoretical_contour(bond_number, tip, calib):
+def theoretical_contour(bond_number, calib):
     """
     Compute the theoretical contour from the Young-Laplace differential equation.
 
