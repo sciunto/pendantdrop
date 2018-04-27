@@ -23,6 +23,9 @@ from drop.theory import rotate_lines
 from drop.optimization import young_laplace, deviation_edge_model
 
 
+# x = along Z
+# y = along R
+
 
 if __name__ == '__main__':
 
@@ -46,12 +49,12 @@ if __name__ == '__main__':
                                                      debug=False)
 
     print(center_x, center_y)
-
+    print(tip)
     # Guess parameters
     # theta, guess_tipx, guess_tipy = guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y)
     # It seems better to get the guess of the tip from the circle fit
     theta = guess_angle(edges, tip, center_x, center_y)
-    guess_tipy, guess_tipx = tip
+    tipy, tipx = tip
 
     initial_gammas = np.divide([-.02, .02, -.02, .02], 10)
     initial_thetas = np.divide([-.02, -.02, .02, .02], 5)
@@ -67,7 +70,7 @@ if __name__ == '__main__':
     ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
     res = minimize(deviation_edge_model,
                    variables,
-                   args=(edges.shape, radius, R_edges, Z_edges, tip, center_x, calib),
+                   args=(edges.shape, radius, R_edges, Z_edges, tipx, center_x, calib),
                    method='Powell',
                    options={'direc': initial_directions,
                             'maxiter': 100,
@@ -79,13 +82,13 @@ if __name__ == '__main__':
 
 
 
-    R, Z = young_laplace(optimal_variables, edges.shape, radius, R_edges, Z_edges, tip, center_x, calib)
+    R, Z = young_laplace(optimal_variables, edges.shape, radius, R_edges, Z_edges, tipx, center_x, calib)
 
 
     print('directions:', initial_center_y)
     print('ini vars:', variables)
     print('opt vars:', optimal_variables)
-    center_yb, center_xb = rotate_lines([center_y], [center_x], tip, optimal_variables[1])
+    center_yb, center_xb = rotate_lines([center_y], [center_x], (tipy, tipx), optimal_variables[1])
 
     center_yb = center_yb[0]
     center_xb = center_xb[0]
