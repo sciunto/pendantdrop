@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
 
 
-    R, Z = young_laplace(optimal_variables, radius, R_edges, Z_edges, center_x, calib)
+    R, Z = young_laplace(*optimal_variables, radius, R_edges, Z_edges, center_x, calib)
 
 
     print('directions:', initial_center_y)

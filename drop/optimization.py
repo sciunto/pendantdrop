@@ -12,23 +12,26 @@ from drop.utils import split_profile
 from drop.theory import rotate_lines, theoretical_contour
 
 
-def young_laplace(variables, radius, R_edges, Z_edges,
-                  center_x,
+def young_laplace(gamma, angle, center_y, radius, R_edges, Z_edges, center_x,
                   calib, rho=1000, gravity=9.81):
     """
     Returns the Young Laplace solution resized and oriented to the image.
 
     Parameters
     ----------
-    variables : tuple
-        (surface tension, angle, center_y)
+    gamma : scalar
+        Surface tension
+    angle : scalar
+
+    center_y : scalar
+
     radius : scalar
 
     R_edges : array
 
     Z_edges : array
 
-    center_x :
+    center_x : scalar
 
     calib : scalar
         Calibration in mm per px.
@@ -42,10 +45,6 @@ def young_laplace(variables, radius, R_edges, Z_edges,
     coordinates : tuple
         (R, Z)
     """
-    gamma = variables[0]
-    theta = variables[1]
-    center_y = variables[2]
-
     rho_g = rho * gravity
     capillary_length = np.sqrt(gamma / rho_g)
     r0 = radius * calib
@@ -66,7 +65,7 @@ def young_laplace(variables, radius, R_edges, Z_edges,
 
     # Rotate
     base_center = np.array((0, r0))
-    R, Z = rotate_lines(R, Z, base_center, theta)
+    R, Z = rotate_lines(R, Z, base_center, angle)
     R = np.array(R)
     Z = np.array(Z)
 
@@ -134,7 +133,7 @@ def deviation_edge_model(variables, radius, R_edges, Z_edges, center_x, calib):
     -------
     RMS
     """
-    R, Z = young_laplace(variables, radius, R_edges, Z_edges, center_x, calib)
+    R, Z = young_laplace(*variables, radius, R_edges, Z_edges, center_x, calib)
 
     # Split profiles to compute errors on each side
     R_left, Z_left, R_right, Z_right = split_profile(R, Z)
