@@ -12,8 +12,8 @@ from drop.utils import split_profile
 from drop.theory import rotate_lines, theoretical_contour
 
 
-def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
-                  tip_x, center_x,
+def young_laplace(variables, radius, R_edges, Z_edges,
+                  center_x,
                   calib, rho=1000, gravity=9.81):
     """
     Returns the Young Laplace solution resized and oriented to the image.
@@ -22,15 +22,11 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
     ----------
     variables : tuple
         (surface tension, angle, center_y)
-    image_shape : tuple
-        Shape of the image.
     radius : scalar
 
     R_edges : array
 
     Z_edges : array
-
-    tip_x :
 
     center_x :
 
@@ -69,24 +65,20 @@ def young_laplace(variables, image_shape, radius, R_edges, Z_edges,
     Z = np.concatenate((Z[1:][::-1], Z))
 
     # Rotate
-    base_center = np.array((0, (center_x - tip_x) * calib))
+    base_center = np.array((0, r0))
     R, Z = rotate_lines(R, Z, base_center, theta)
     R = np.array(R)
     Z = np.array(Z)
 
-    # Cut
-    Z0 = image_shape[0] - tip_x
-    Zmax = Z0 * calib  # maximum possible values of Z to be upgraded
-    R = R[Z < Zmax]
-    Z = Z[Z < Zmax]
-
     # Rescales contour to the image axes
     R = R / calib + center_y
-    Z = Z / calib + tip_x
+    Z = Z / calib + (center_x - radius)
 
+    # Drop the theoretical points that go beyond the latest detected pixel
+    # ie outside the image
     aa = np.where(Z > np.max(Z_edges))
-    R = np.delete(R, aa[0])
-    Z = np.delete(Z, aa[0])
+    R = np.delete(R, aa)
+    Z = np.delete(Z, aa)
 
     return R, Z
 
@@ -119,7 +111,7 @@ def squared_distance(R, Z, R_edges, Z_edges):
     return (R_theo_interpolated - R_edges)**2
 
 
-def deviation_edge_model(variables, image_shape, radius, R_edges, Z_edges, tip_x, center_x, calib):
+def deviation_edge_model(variables, radius, R_edges, Z_edges, center_x, calib):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
 
@@ -127,16 +119,12 @@ def deviation_edge_model(variables, image_shape, radius, R_edges, Z_edges, tip_x
     ----------
     variables : tuple
         (surface tension, angle, center_y)
-    image_shape : tuple
-        Shape of the image.
     radius : scalar
 
     R_edges : array
         Radial coordinates of the edge.
     Z_edges : array
         Vertical coordinates of the edge.
-    tip_x :
-
     center_x :
 
     calib :
@@ -146,7 +134,7 @@ def deviation_edge_model(variables, image_shape, radius, R_edges, Z_edges, tip_x
     -------
     RMS
     """
-    R, Z = young_laplace(variables, image_shape, radius, R_edges, Z_edges, tip_x, center_x, calib)
+    R, Z = young_laplace(variables, radius, R_edges, Z_edges, center_x, calib)
 
     # Split profiles to compute errors on each side
     R_left, Z_left, R_right, Z_right = split_profile(R, Z)

@@ -66,10 +66,11 @@ if __name__ == '__main__':
 
     variables = np.array((gamma0, theta, center_y))
 
-    ###http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf slides about minimizations methods
+    # slides about minimizations methods
+    # http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf
     res = minimize(deviation_edge_model,
                    variables,
-                   args=(edges.shape, radius, R_edges, Z_edges, tipx, center_x, calib),
+                   args=(radius, R_edges, Z_edges, center_x, calib),
                    method='Powell',
                    options={'direc': initial_directions,
                             'maxiter': 100,
@@ -81,13 +82,14 @@ if __name__ == '__main__':
 
 
 
-    R, Z = young_laplace(optimal_variables, edges.shape, radius, R_edges, Z_edges, tipx, center_x, calib)
+    R, Z = young_laplace(optimal_variables, radius, R_edges, Z_edges, center_x, calib)
 
 
     print('directions:', initial_center_y)
     print('ini vars:', variables)
     print('opt vars:', optimal_variables)
     print(center_y, tipy)
+    print(center_x, tipx)
     center_yb, center_xb = rotate_lines([center_y], [center_x], (tipy, tipx), optimal_variables[1])
 
     center_yb = center_yb[0]
@@ -101,7 +103,7 @@ if __name__ == '__main__':
 
 
     plt.figure()
-    ax=plt.axes()
+    ax = plt.axes()
     plt.imshow(image1, cmap='gray')
     circle = plt.Circle((center_y, center_x), radius=radius, color='c', fill=False)
     ax.add_patch(circle)
