@@ -145,7 +145,7 @@ def _fit_circle_tip_ransac(shape, R, Z, debug=False):
     Returns
     -------
     parameters : tuple
-        (center_x, center_y, radius, tip_position)
+        (center_x, center_y, radius)
 
     """
 
@@ -161,7 +161,6 @@ def _fit_circle_tip_ransac(shape, R, Z, debug=False):
                                            max_trials=1000)
 
     cy, cx, r = model_robust.params
-    tip = [cy, cx - r]
 
     if debug:
         import matplotlib.pyplot as plt
@@ -176,7 +175,7 @@ def _fit_circle_tip_ransac(shape, R, Z, debug=False):
                   'r.', markersize=1, label='outliers')
         plt.legend()
 
-    return cx, cy, r, tip
+    return cx, cy, r
 
 
 def fit_circle_tip(shape, R, Z, method='ransac', debug=False):
@@ -209,7 +208,7 @@ def fit_circle_tip(shape, R, Z, method='ransac', debug=False):
         raise ValueError('Wrong parameter value for `method`.')
 
 
-def guess_angle(edges, tip, center_x, center_y):
+def guess_angle(edges, center_x, center_y):
     """
     Guess values for the angle and the tip position.
 
@@ -226,8 +225,7 @@ def guess_angle(edges, tip, center_x, center_y):
 
     Returns
     -------
-    guessed_parameters : tuple
-        (theta, tipx, tipy)
+    angle : scalar
     """
     c_center = np.array((center_y, center_x))
 

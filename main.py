@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from scipy.optimize import fmin_powell, minimize
-from skimage.draw import circle, circle_perimeter
+
 
 from drop.io import load_image
 from drop.edge import fit_circle_tip
@@ -43,18 +43,18 @@ if __name__ == '__main__':
     edges, R_edges, Z_edges = detect_edges(image1,
                                            method='contour')
 
-    center_x, center_y, radius, tip = fit_circle_tip(edges.shape,
-                                                     R_edges, Z_edges,
-                                                     method='ransac',
-                                                     debug=False)
+    center_x, center_y, radius = fit_circle_tip(edges.shape,
+                                                R_edges, Z_edges,
+                                                method='ransac',
+                                                debug=False)
 
+    tipy, tipx = [center_y, center_x - radius]
     print(center_x, center_y)
-    print(tip)
     # Guess parameters
     # theta, guess_tipx, guess_tipy = guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y)
     # It seems better to get the guess of the tip from the circle fit
-    theta = guess_angle(edges, tip, center_x, center_y)
-    tipy, tipx = tip
+    theta = guess_angle(edges, center_x, center_y)
+
 
     initial_gammas = np.divide([-.02, .02, -.02, .02], 10)
     initial_thetas = np.divide([-.02, -.02, .02, .02], 5)
@@ -63,7 +63,6 @@ if __name__ == '__main__':
                                               initial_thetas,
                                               initial_center_y]))
 
-    #,initial_radii,initial_center_yb]))#,initial_center_yb]))#,initial_center_xb]))
 
     variables = np.array((gamma0, theta, center_y))
 
@@ -88,15 +87,17 @@ if __name__ == '__main__':
     print('directions:', initial_center_y)
     print('ini vars:', variables)
     print('opt vars:', optimal_variables)
+    print(center_y, tipy)
     center_yb, center_xb = rotate_lines([center_y], [center_x], (tipy, tipx), optimal_variables[1])
 
     center_yb = center_yb[0]
     center_xb = center_xb[0]
 
-
     # Display purpose only...
-    rr,cc = circle(center_x, center_y, radius-5)
-    image1[rr, cc] = 10
+    # Apply a mask
+    # from skimage.draw import circle
+    # rr, cc = circle(center_x, center_y, radius-5)
+    # image1[rr, cc] = 10
 
 
     plt.figure()
