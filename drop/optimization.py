@@ -46,6 +46,9 @@ def young_laplace(gamma, angle, center_y, center_x, radius, R_edges, Z_edges,
         (R, Z)
     """
     rho_g = rho * gravity
+    # FIXME
+    np.seterr(all='raise')
+    print('gamma:  ----->', gamma)
     capillary_length = np.sqrt(gamma / rho_g)
     r0 = radius * calib
     bond_number = (r0 / capillary_length)**2
@@ -105,7 +108,8 @@ def squared_distance(R, Z, R_edges, Z_edges):
 
     """
     # np.seterr(all='raise')
-    R_theo_interpolator = interp1d(Z, R, kind='linear', fill_value='extrapolate')
+    R_theo_interpolator = interp1d(Z, R,
+                                   kind='linear', fill_value='extrapolate')
     R_theo_interpolated = R_theo_interpolator(Z_edges)
     return (R_theo_interpolated - R_edges)**2
 

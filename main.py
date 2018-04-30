@@ -48,50 +48,72 @@ if __name__ == '__main__':
                                                 method='ransac',
                                                 debug=False)
 
+
     tipy, tipx = [center_y, center_x - radius]
-    print(center_x, center_y)
+    print(center_x, center_y, radius)
     # Guess parameters
     # theta, guess_tipx, guess_tipy = guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y)
     # It seems better to get the guess of the tip from the circle fit
     theta = guess_angle(edges, center_x, center_y)
 
 
-    initial_gammas = np.divide([-.02, .02, -.02, .02], 10)
-    initial_thetas = np.divide([-.02, -.02, .02, .02], 5)
-    initial_center_y = np.divide([1, 1, -1, -1], 1)
-    initial_directions = np.transpose(np.array([initial_gammas,
-                                              initial_thetas,
-                                              initial_center_y]))
+#    initial_gammas = np.divide([-.02, .02, -.02, .02], 10)
+#    initial_thetas = np.divide([-.02, -.02, .02, .02], 5)
+#    initial_center_y = np.divide([1, 1, -1, -1], 1)
+#    initial_directions = np.transpose(np.array([initial_gammas,
+#                                              initial_thetas,
+#                                              initial_center_y]))
 
 
-    variables = np.array((gamma0, theta, center_y))
+    ini_variables = np.array((gamma0, theta, center_y))
 
-    # slides about minimizations methods
-    # http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf
+#    # slides about minimizations methods
+#    # http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf
+
+#    print('directions:', initial_center_y)
+#    res = minimize(deviation_edge_model,
+#                   variables,
+#                   args=(center_x, radius, R_edges, Z_edges, calib),
+#                   method='Powell',
+#                   options={'direc': initial_directions,
+#                            'maxiter': 10,
+#                            'xtol': 1e-2,
+#                            'ftol': 1e-2,
+#                            'disp': True})
+#    #,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
+#    optimal_variables_Powell = res.x
+
+
+#                  method='SLSQP',
+# method='L-BFGS-B',
+    optimal_variables_Powell = ini_variables
+
     res = minimize(deviation_edge_model,
-                   variables,
+                   optimal_variables_Powell,
                    args=(center_x, radius, R_edges, Z_edges, calib),
-                   method='Powell',
-                   options={'direc': initial_directions,
-                            'maxiter': 100,
-                            'xtol': 1e-4,
+                   method='L-BFGS-B',
+                   bounds= ((0.02,0.1), (theta*0.7, theta*1.4), (center_y-5, center_y+5)),
+                   options={'maxiter': 100,
                             'ftol': 1e-4,
                             'disp': True})
     #,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
-    optimal_variables = res.x
+    optimal_variables_BFGS = res.x
 
 
 
-    R, Z = young_laplace(*optimal_variables, center_x, radius,
+    R, Z = young_laplace(*optimal_variables_BFGS, center_x, radius,
                          R_edges, Z_edges,  calib)
 
 
-    print('directions:', initial_center_y)
-    print('ini vars:', variables)
-    print('opt vars:', optimal_variables)
+
+    print('ini vars:', ini_variables)
+    print('opt vars Powell:', optimal_variables_Powell)
+    print('opt vars BFGS:', optimal_variables_BFGS)
     print(center_y, tipy)
     print(center_x, tipx)
-    center_yb, center_xb = rotate_lines([center_y], [center_x], (tipy, tipx), optimal_variables[1])
+    center_yb, center_xb = rotate_lines([center_y], [center_x],
+                                        (tipy, tipx),
+                                        optimal_variables_BFGS[1])
 
     center_yb = center_yb[0]
     center_xb = center_xb[0]
@@ -114,5 +136,5 @@ if __name__ == '__main__':
 
 
     #plt.plot([base_center[0], tip[0]], [base_center[1], tip[1]], '-y')
-    plt.title('Gamma = %f N/m' % optimal_variables[0])
+    plt.title('Gamma = %f N/m' % optimal_variables_BFGS[0])
     plt.show()
