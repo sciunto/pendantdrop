@@ -49,7 +49,7 @@ def young_laplace_diff_equation(variables, space, bond_number):
     return phi_prime, r_prime, z_prime
 
 
-def theoretical_contour(bond_number, calib):
+def theoretical_contour(bond_number, calib, num_points=1e3):
     """
     Compute the theoretical contour from the Young-Laplace differential equation.
 
@@ -67,7 +67,6 @@ def theoretical_contour(bond_number, calib):
 
     """
     s_max = 10
-    num_points = 1e4
     # TODO s_max is an arbitrary value.
     # Need to check if an increase is needed... or something.
     s_tilde = np.linspace(0, s_max, num_points)

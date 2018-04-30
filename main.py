@@ -4,23 +4,19 @@ Created on Thu Mar 22 14:15:31 2018
 
 @author: miguet
 """
-
-
-#from IPython import get_ipython
-#get_ipython().magic('reset -sf')
-
 import numpy as np
 import matplotlib.pyplot as plt
 
-from scipy.optimize import fmin_powell, minimize
+from scipy.optimize import minimize
 
 
 from drop.io import load_image
 from drop.edge import fit_circle_tip
 from drop.edge import detect_edges
 from drop.edge import guess_angle
-from drop.theory import rotate_lines
-from drop.optimization import young_laplace, deviation_edge_model
+from drop.optimization import young_laplace,\
+                                deviation_edge_model_simple,\
+                                deviation_edge_model_full
 
 
 # x = along Z
@@ -30,111 +26,78 @@ from drop.optimization import young_laplace, deviation_edge_model
 if __name__ == '__main__':
 
     image_path = 'uEye_Image_000827.bmp'
-    zoom = ([100,1312], [400,1900])
-    calib = 0.00124 / 400  #400 pixel = 1.24mm
+    zoom = ([100, 1312], [400, 1900])
+    calib = 0.00124 / 400  # mm / px
     # Arbitrary first guess for gamma
-    gamma0 = 0.040 # N/m
-
+    initial_surface_tension = 0.04  # N/m
+    min_surface_tension = 0.02
+    max_surface_tension = 0.1
     # image_path = 'uEye_Image_002767.bmp'
     # zoom = ((814, 1020), (1920, 1772))
 
     image1 = load_image(image_path, region=zoom)
 
-    edges, R_edges, Z_edges = detect_edges(image1,
-                                           method='contour')
+    edges, R_edges, Z_edges = detect_edges(image1, method='contour')
 
+    # Guess parameters
     center_x, center_y, radius = fit_circle_tip(edges.shape,
                                                 R_edges, Z_edges,
                                                 method='ransac',
                                                 debug=False)
-
-
-    tipy, tipx = [center_y, center_x - radius]
-    print(center_x, center_y, radius)
-    # Guess parameters
-    # theta, guess_tipx, guess_tipy = guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y)
-    # It seems better to get the guess of the tip from the circle fit
     theta = guess_angle(edges, center_x, center_y)
 
+    # Note that below the method method='SLSQP' can be used also.
 
-#    initial_gammas = np.divide([-.02, .02, -.02, .02], 10)
-#    initial_thetas = np.divide([-.02, -.02, .02, .02], 5)
-#    initial_center_y = np.divide([1, 1, -1, -1], 1)
-#    initial_directions = np.transpose(np.array([initial_gammas,
-#                                              initial_thetas,
-#                                              initial_center_y]))
-
-
-    ini_variables = np.array((gamma0, theta, center_y))
-
-#    # slides about minimizations methods
-#    # http://informatik.unibas.ch/fileadmin/Lectures/HS2013/CS253/PowellAndDP1.pdf
-
-#    print('directions:', initial_center_y)
-#    res = minimize(deviation_edge_model,
-#                   variables,
-#                   args=(center_x, radius, R_edges, Z_edges, calib),
-#                   method='Powell',
-#                   options={'direc': initial_directions,
-#                            'maxiter': 10,
-#                            'xtol': 1e-2,
-#                            'ftol': 1e-2,
-#                            'disp': True})
-#    #,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
-#    optimal_variables_Powell = res.x
-
-
-#                  method='SLSQP',
-# method='L-BFGS-B',
-    optimal_variables_Powell = ini_variables
-
-    res = minimize(deviation_edge_model,
-                   optimal_variables_Powell,
-                   args=(center_x, radius, R_edges, Z_edges, calib),
+    # Step 1: consider only the surface tension
+    # as it is not guessed so far
+    ini_variables = np.array((initial_surface_tension))
+    res = minimize(deviation_edge_model_simple,
+                   ini_variables,
+                   args=(theta, center_y, center_x, radius, R_edges, Z_edges, calib),
                    method='L-BFGS-B',
-                   bounds= ((0.02,0.1), (theta*0.7, theta*1.4), (center_y-5, center_y+5)),
-                   options={'maxiter': 100,
-                            'ftol': 1e-4,
+                   bounds=((min_surface_tension, max_surface_tension),),
+                   options={'maxiter': 10,
+                            'ftol': 1e-2,
                             'disp': True})
-    #,options={'xtol': 1e-8, 'disp': True,'maxfev':100})
-    optimal_variables_BFGS = res.x
+    guessed_surface_tension = res.x[0]
+    print('Step 1-RMS:', res.fun)
 
+    # Step 2: consider all the parameters
+    # as it is not guessed so far
+    ini_variables2 = np.array((guessed_surface_tension,
+                               theta, center_y, center_x, radius,))
+    param_bounds = ((guessed_surface_tension-2e-3, guessed_surface_tension+2e-3),
+                    (theta*0.7, theta*1.3),
+                    (center_y-5, center_y+5),
+                    (center_x-5, center_x+5),
+                    (radius-10,radius+10),
+                    )
 
+    res = minimize(deviation_edge_model_full,
+                   ini_variables2,
+                   args=(R_edges, Z_edges, calib),
+                   method='L-BFGS-B',
+                   bounds=param_bounds,
+                   options={'maxiter': 100,
+                            'ftol': 1e-6,
+                            'disp': True})
+    optimal_variables = res.x
+    print('Step 2-ini params BFGS:', ini_variables2)
+    print('Step 2-opt params BFGS:', optimal_variables)
+    print('Step 2-RMS:', res.fun)
 
-    R, Z = young_laplace(*optimal_variables_BFGS, center_x, radius,
-                         R_edges, Z_edges,  calib)
-
-
-
-    print('ini vars:', ini_variables)
-    print('opt vars Powell:', optimal_variables_Powell)
-    print('opt vars BFGS:', optimal_variables_BFGS)
-    print(center_y, tipy)
-    print(center_x, tipx)
-    center_yb, center_xb = rotate_lines([center_y], [center_x],
-                                        (tipy, tipx),
-                                        optimal_variables_BFGS[1])
-
-    center_yb = center_yb[0]
-    center_xb = center_xb[0]
-
-    # Display purpose only...
-    # Apply a mask
-    # from skimage.draw import circle
-    # rr, cc = circle(center_x, center_y, radius-5)
-    # image1[rr, cc] = 10
-
+    # Plot
+    R, Z = young_laplace(*optimal_variables,
+                         R_edges, Z_edges, calib, num_points=1e4)
 
     plt.figure()
     ax = plt.axes()
     plt.imshow(image1, cmap='gray')
-    circle = plt.Circle((center_y, center_x), radius=radius, color='c', fill=False)
+    circle = plt.Circle((center_y, center_x), radius=radius,
+                        color='c', fill=False)
     ax.add_patch(circle)
     plt.plot(R_edges, Z_edges, '*g', markersize=1)
-    plt.plot(R, Z, 'r-o', markersize=2)
+    plt.plot(R, Z, 'r-', markersize=2)
     plt.plot(center_y, center_x, 'bo')
-
-
-    #plt.plot([base_center[0], tip[0]], [base_center[1], tip[1]], '-y')
-    plt.title('Gamma = %f N/m' % optimal_variables_BFGS[0])
+    plt.title('Gamma = %f N/m' % optimal_variables[0])
     plt.show()

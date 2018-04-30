@@ -13,7 +13,7 @@ from drop.theory import rotate_lines, theoretical_contour
 
 
 def young_laplace(gamma, angle, center_y, center_x, radius, R_edges, Z_edges,
-                  calib, rho=1000, gravity=9.81):
+                  calib, rho=1000, gravity=9.81, num_points=1e3):
     """
     Returns the Young Laplace solution resized and oriented to the image.
 
@@ -25,13 +25,14 @@ def young_laplace(gamma, angle, center_y, center_x, radius, R_edges, Z_edges,
 
     center_y : scalar
 
+    center_x : scalar
+
     radius : scalar
 
     R_edges : array
 
     Z_edges : array
 
-    center_x : scalar
 
     calib : scalar
         Calibration in mm per px.
@@ -39,6 +40,8 @@ def young_laplace(gamma, angle, center_y, center_x, radius, R_edges, Z_edges,
         Fluid density.
     gravity : scalar, optional
         Gravitational acceleration.
+    num_points : scalar, optional
+        Number of points used in `theoretical_contour`
 
     Returns
     -------
@@ -46,14 +49,13 @@ def young_laplace(gamma, angle, center_y, center_x, radius, R_edges, Z_edges,
         (R, Z)
     """
     rho_g = rho * gravity
-    # FIXME
-    np.seterr(all='raise')
-    print('gamma:  ----->', gamma)
     capillary_length = np.sqrt(gamma / rho_g)
     r0 = radius * calib
     bond_number = (r0 / capillary_length)**2
 
-    R, Z = theoretical_contour(bond_number, calib)
+    # For the theoretical contour, the position (0, 0) corresponds to
+    # the tip of the drop.
+    R, Z = theoretical_contour(bond_number, calib, num_points=num_points)
 
     # Rescale
     R = R * r0
@@ -138,6 +140,87 @@ def deviation_edge_model(variables, center_x, radius, R_edges, Z_edges, calib):
     RMS
     """
     R, Z = young_laplace(*variables, center_x, radius, R_edges, Z_edges, calib)
+
+    # Split profiles to compute errors on each side
+    R_left, Z_left, R_right, Z_right = split_profile(R, Z)
+    R_edges_left, Z_edges_left, R_edges_right, Z_edges_right = split_profile(R_edges, Z_edges)
+
+    # Error on both sides.
+    e_left = squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
+    e_right = squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
+
+    # Merge errrors
+    e_all = np.concatenate((e_left, e_right))
+    chi_squared = np.sum(e_all)
+    RMS = np.sqrt(chi_squared) / len(e_all)
+    return RMS
+
+
+
+def deviation_edge_model_simple(variables, angle, center_y, center_x, radius, R_edges, Z_edges, calib):
+    """
+    Return the RMS for a profile given by set of parameters to the experimental profile.
+
+    Parameters
+    ----------
+    variables : tuple
+        (surface tension, angle, center_y)
+    radius : scalar
+
+    R_edges : array
+        Radial coordinates of the edge.
+    Z_edges : array
+        Vertical coordinates of the edge.
+    center_x :
+
+    calib :
+
+
+    Returns
+    -------
+    RMS
+    """
+    R, Z = young_laplace(*variables, angle, center_y, center_x, radius, R_edges, Z_edges, calib)
+
+    # Split profiles to compute errors on each side
+    R_left, Z_left, R_right, Z_right = split_profile(R, Z)
+    R_edges_left, Z_edges_left, R_edges_right, Z_edges_right = split_profile(R_edges, Z_edges)
+
+    # Error on both sides.
+    e_left = squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
+    e_right = squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
+
+    # Merge errrors
+    e_all = np.concatenate((e_left, e_right))
+    chi_squared = np.sum(e_all)
+    RMS = np.sqrt(chi_squared) / len(e_all)
+    return RMS
+
+
+def deviation_edge_model_full(variables, R_edges, Z_edges, calib):
+    """
+    Return the RMS for a profile given by set of parameters to the experimental profile.
+
+    Parameters
+    ----------
+    variables : tuple
+        (surface tension, angle, center_y)
+    radius : scalar
+
+    R_edges : array
+        Radial coordinates of the edge.
+    Z_edges : array
+        Vertical coordinates of the edge.
+    center_x :
+
+    calib :
+
+
+    Returns
+    -------
+    RMS
+    """
+    R, Z = young_laplace(*variables, R_edges, Z_edges, calib)
 
     # Split profiles to compute errors on each side
     R_left, Z_left, R_right, Z_right = split_profile(R, Z)
