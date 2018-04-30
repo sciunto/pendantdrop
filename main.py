@@ -70,7 +70,7 @@ if __name__ == '__main__':
                     (theta*0.7, theta*1.3),
                     (center_y-5, center_y+5),
                     (center_x-5, center_x+5),
-                    (radius-10,radius+10),
+                    (radius-10, radius+10),
                     )
 
     res = minimize(deviation_edge_model_full,
