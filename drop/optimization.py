@@ -12,7 +12,7 @@ from drop.utils import split_profile
 from drop.theory import rotate_lines, theoretical_contour
 
 
-def young_laplace(gamma, angle, center_y, center_x, radius, R_edges, Z_edges,
+def young_laplace(gamma, angle, center_R, center_Z, radius, R_edges, Z_edges,
                   calib, rho=1000, gravity=9.81, num_points=1e3):
     """
     Returns the Young Laplace solution resized and oriented to the image.
@@ -23,9 +23,9 @@ def young_laplace(gamma, angle, center_y, center_x, radius, R_edges, Z_edges,
         Surface tension
     angle : scalar
 
-    center_y : scalar
+    center_R : scalar
 
-    center_x : scalar
+    center_Z : scalar
 
     radius : scalar
 
@@ -74,8 +74,8 @@ def young_laplace(gamma, angle, center_y, center_x, radius, R_edges, Z_edges,
     Z = np.array(Z)
 
     # Rescales contour to the image axes
-    R = R / calib + center_y
-    Z = Z / calib + (center_x - radius)
+    R = R / calib + center_R
+    Z = Z / calib + (center_Z - radius)
 
     # Drop the theoretical points that go beyond the latest detected pixel
     # ie outside the image
@@ -115,21 +115,21 @@ def squared_distance(R, Z, R_edges, Z_edges):
     return (R_theo_interpolated - R_edges)**2
 
 
-def deviation_edge_model_simple(variables, angle, center_y, center_x, radius, R_edges, Z_edges, calib):
+def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, R_edges, Z_edges, calib):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
 
     Parameters
     ----------
     variables : tuple
-        (surface tension, angle, center_y)
+        (surface tension, angle, center_R)
     radius : scalar
 
     R_edges : array
         Radial coordinates of the edge.
     Z_edges : array
         Vertical coordinates of the edge.
-    center_x :
+    center_Z :
 
     calib : scalar
         Calibration in mm per px.
@@ -138,7 +138,7 @@ def deviation_edge_model_simple(variables, angle, center_y, center_x, radius, R_
     -------
     RMS
     """
-    R, Z = young_laplace(*variables, angle, center_y, center_x, radius, R_edges, Z_edges, calib)
+    R, Z = young_laplace(*variables, angle, center_R, center_Z, radius, R_edges, Z_edges, calib)
 
     # Split profiles to compute errors on each side
     R_left, Z_left, R_right, Z_right = split_profile(R, Z)
@@ -162,14 +162,14 @@ def deviation_edge_model_full(variables, R_edges, Z_edges, calib):
     Parameters
     ----------
     variables : tuple
-        (surface tension, angle, center_y)
+        (surface tension, angle, center_R)
     radius : scalar
 
     R_edges : array
         Radial coordinates of the edge.
     Z_edges : array
         Vertical coordinates of the edge.
-    center_x :
+    center_Z :
 
     calib : scalar
         Calibration in mm per px.

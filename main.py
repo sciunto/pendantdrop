@@ -18,11 +18,6 @@ from drop.optimization import young_laplace, deviation_edge_model_simple,\
                               deviation_edge_model_full
 
 
-# x = along Z
-# y = along R
-
-
-
 def main():
     image_path = 'uEye_Image_000827.bmp'
     zoom = ([100, 1312], [400, 1900])
@@ -39,11 +34,11 @@ def main():
     edges, R_edges, Z_edges = detect_edges(image1, method='contour')
 
     # Guess parameters
-    center_x, center_y, radius = fit_circle_tip(edges.shape,
+    center_Z, center_R, radius = fit_circle_tip(edges.shape,
                                                 R_edges, Z_edges,
                                                 method='ransac',
                                                 debug=False)
-    theta = guess_angle(edges, center_x, center_y)
+    theta = guess_angle(edges, center_Z, center_R)
 
     # Note that below the method method='SLSQP' can be used also.
 
@@ -52,7 +47,7 @@ def main():
     ini_variables = np.array((initial_surface_tension))
     res = minimize(deviation_edge_model_simple,
                    ini_variables,
-                   args=(theta, center_y, center_x,
+                   args=(theta, center_R, center_Z,
                          radius, R_edges, Z_edges, calib),
                    method='L-BFGS-B',
                    bounds=((min_surface_tension, max_surface_tension),),
@@ -65,11 +60,11 @@ def main():
     # Step 2: consider all the parameters
     # as it is not guessed so far
     ini_variables2 = np.array((guessed_surface_tension,
-                               theta, center_y, center_x, radius,))
+                               theta, center_R, center_Z, radius,))
     param_bounds = ((guessed_surface_tension-2e-3, guessed_surface_tension+2e-3),
                     (theta*0.7, theta*1.3),
-                    (center_y-5, center_y+5),
-                    (center_x-5, center_x+5),
+                    (center_R-5, center_R+5),
+                    (center_Z-5, center_Z+5),
                     (radius-10, radius+10),
                     )
 
@@ -93,12 +88,12 @@ def main():
     plt.figure()
     ax = plt.axes()
     plt.imshow(image1, cmap='gray')
-    circle = plt.Circle((center_y, center_x), radius=radius,
+    circle = plt.Circle((center_R, center_Z), radius=radius,
                         color='c', fill=False)
     ax.add_patch(circle)
     plt.plot(R_edges, Z_edges, '*g', markersize=1)
     plt.plot(R, Z, 'r-', markersize=2)
-    plt.plot(center_y, center_x, 'bo')
+    plt.plot(center_R, center_Z, 'bo')
     plt.title('Gamma = %f N/m' % optimal_variables[0])
     plt.show()
 

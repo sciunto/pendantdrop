@@ -60,7 +60,7 @@ def _find_circle(edges, hough_radii):
     Returns
     -------
     parameters : tuple
-        (center_x, center_y, radius, tip_position)
+        (center_Z, center_R, radius, tip_position)
 
     """
     hough_res = hough_circle(edges, hough_radii, full_output=True)
@@ -78,14 +78,14 @@ def _find_circle(edges, hough_radii):
 
     idx = np.argsort(accums)[::-1][0]
 
-    center_x, center_y = centers[idx]
+    center_Z, center_R = centers[idx]
     radius = radii[idx]
 
-    center_x = center_x - hough_radii[-1]
-    center_y = center_y - hough_radii[-1]
-    tip = [center_y, center_x - radius]
+    center_Z = center_Z - hough_radii[-1]
+    center_R = center_R - hough_radii[-1]
+    tip = [center_R, center_Z - radius]
 
-    return center_x, center_y, radius, tip
+    return center_Z, center_R, radius, tip
 
 
 def _fit_circle_tip_hough_transform(shape, R, Z):
@@ -105,7 +105,7 @@ def _fit_circle_tip_hough_transform(shape, R, Z):
     Returns
     -------
     parameters : tuple
-        (center_x, center_y, radius, tip_position)
+        (center_Z, center_R, radius, tip_position)
     """
     # Assume upward bubble orientation
     # Mask to select the 45th parallel
@@ -145,7 +145,7 @@ def _fit_circle_tip_ransac(shape, R, Z, debug=False):
     Returns
     -------
     parameters : tuple
-        (center_x, center_y, radius)
+        (center_Z, center_R, radius)
 
     """
 
@@ -198,7 +198,7 @@ def fit_circle_tip(shape, R, Z, method='ransac', debug=False):
     Returns
     -------
     parameters : tuple
-        (center_x, center_y, radius, tip_position)
+        (center_Z, center_R, radius, tip_position)
     """
     if method.lower() == 'ransac':
         return _fit_circle_tip_ransac(shape, R, Z, debug=debug)
@@ -208,7 +208,7 @@ def fit_circle_tip(shape, R, Z, method='ransac', debug=False):
         raise ValueError('Wrong parameter value for `method`.')
 
 
-def guess_angle(edges, center_x, center_y):
+def guess_angle(edges, center_Z, center_R):
     """
     Guess values for the angle and the circle's center.
 
@@ -216,16 +216,16 @@ def guess_angle(edges, center_x, center_y):
     ----------
     edges : boolean image
         Image containing the edges to fit.
-    center_x :
+    center_Z :
 
-    center_y :
+    center_R :
 
 
     Returns
     -------
     angle : scalar
     """
-    c_center = np.array((center_y, center_x))
+    c_center = np.array((center_R, center_Z))
 
     # assume orientation base at bottom of image
     pixels_on_baseline = np.where(edges[-1, :] == True)
@@ -243,7 +243,7 @@ def guess_angle(edges, center_x, center_y):
 
 
 
-def guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y):
+def guess_parameters(edges, R_edges, Z_edges, tip, center_Z, center_R):
     """
     Guess values for the angle and the tip position.
 
@@ -257,9 +257,9 @@ def guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y):
         Vertical coordinates of the edge.
     tip :
 
-    center_x :
+    center_Z :
 
-    center_y :
+    center_R :
 
 
     Returns
@@ -267,7 +267,7 @@ def guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y):
     guessed_parameters : tuple
         (theta, tipx, tipy)
     """
-    c_center = np.array((center_y, center_x))
+    c_center = np.array((center_R, center_Z))
 
     # assume orientation base at bottom of image
     pixels_on_baseline = np.where(edges[-1, :] == True)
@@ -282,7 +282,7 @@ def guess_parameters(edges, R_edges, Z_edges, tip, center_x, center_y):
     theta = np.arcsin(opp/hyp)
 
     shift = (edges.shape[0]-1-tip[1]) * np.tan(np.abs(theta))
-    if center_y > baseline_center[0] and theta > 0:
+    if center_R > baseline_center[0] and theta > 0:
         guess_tipy = baseline_center[0] + shift
     else:
         guess_tipy = baseline_center[0] - shift
