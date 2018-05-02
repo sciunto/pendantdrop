@@ -86,9 +86,9 @@ def young_laplace(gamma, angle, center_R, center_Z, radius, R_edges, Z_edges,
     return R, Z
 
 
-def squared_distance(R, Z, R_edges, Z_edges):
+def radial_squared_distance(R, Z, R_edges, Z_edges):
     """
-    Calculate the squared distance for half profile.
+    Calculate the radial squared distance for half profile.
 
     Theoretical points are interpolated on experimental ones.
 
@@ -108,7 +108,6 @@ def squared_distance(R, Z, R_edges, Z_edges):
     distance
 
     """
-    # np.seterr(all='raise')
     R_theo_interpolator = interp1d(Z, R,
                                    kind='linear', fill_value='extrapolate')
     R_theo_interpolated = R_theo_interpolator(Z_edges)
@@ -145,8 +144,8 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, R_
     R_edges_left, Z_edges_left, R_edges_right, Z_edges_right = split_profile(R_edges, Z_edges)
 
     # Error on both sides.
-    e_left = squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
-    e_right = squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
+    e_left = radial_squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
+    e_right = radial_squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
 
     # Merge errrors
     e_all = np.concatenate((e_left, e_right))
@@ -185,8 +184,8 @@ def deviation_edge_model_full(variables, R_edges, Z_edges, calib):
     R_edges_left, Z_edges_left, R_edges_right, Z_edges_right = split_profile(R_edges, Z_edges)
 
     # Error on both sides.
-    e_left = squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
-    e_right = squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
+    e_left = radial_squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
+    e_right = radial_squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
 
     # Merge errrors
     e_all = np.concatenate((e_left, e_right))
