@@ -1,10 +1,4 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 29 10:53:58 2018
-
-@author: fr
-"""
 
 import numpy as np
 from skimage.transform import hough_circle

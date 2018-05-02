@@ -1,15 +1,8 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 29 17:16:27 2018
-
-@author: fr
-"""
 import numpy as np
 
-from scipy.interpolate import interp1d
-from drop.utils import split_profile
 from drop.theory import rotate_lines, theoretical_contour
+from drop.deviation import radial_RMS
 
 
 def young_laplace(gamma, angle, center_R, center_Z, radius, R_edges, Z_edges,
@@ -86,33 +79,6 @@ def young_laplace(gamma, angle, center_R, center_Z, radius, R_edges, Z_edges,
     return R, Z
 
 
-def radial_squared_distance(R, Z, R_edges, Z_edges):
-    """
-    Calculate the radial squared distance for half profile.
-
-    Theoretical points are interpolated on experimental ones.
-
-    Parameters
-    ----------
-    R : array
-        Radial coordinates of the theoretical contour.
-    Z : array
-        Vertical coordinates of the theoretical contour.
-    R_edges : array
-        Radial coordinates of the edge.
-    Z_edges : array
-        Vertical coordinates of the edge.
-
-    Returns
-    -------
-    distance
-
-    """
-    R_theo_interpolator = interp1d(Z, R,
-                                   kind='linear', fill_value='extrapolate')
-    R_theo_interpolated = R_theo_interpolator(Z_edges)
-    return (R_theo_interpolated - R_edges)**2
-
 
 def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, R_edges, Z_edges, calib):
     """
@@ -143,19 +109,8 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, R_
     """
     R, Z = young_laplace(*variables, angle, center_R, center_Z, radius, R_edges, Z_edges, calib)
 
-    # Split profiles to compute errors on each side
-    R_left, Z_left, R_right, Z_right = split_profile(R, Z)
-    R_edges_left, Z_edges_left, R_edges_right, Z_edges_right = split_profile(R_edges, Z_edges)
+    return radial_RMS(R, Z, R_edges, Z_edges)
 
-    # Error on both sides.
-    e_left = radial_squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
-    e_right = radial_squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
-
-    # Merge errrors
-    e_all = np.concatenate((e_left, e_right))
-    chi_squared = np.sum(e_all)
-    RMS = np.sqrt(chi_squared) / len(e_all)
-    return RMS
 
 
 def deviation_edge_model_full(variables, R_edges, Z_edges, calib):
@@ -179,16 +134,4 @@ def deviation_edge_model_full(variables, R_edges, Z_edges, calib):
     """
     R, Z = young_laplace(*variables, R_edges, Z_edges, calib)
 
-    # Split profiles to compute errors on each side
-    R_left, Z_left, R_right, Z_right = split_profile(R, Z)
-    R_edges_left, Z_edges_left, R_edges_right, Z_edges_right = split_profile(R_edges, Z_edges)
-
-    # Error on both sides.
-    e_left = radial_squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
-    e_right = radial_squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
-
-    # Merge errrors
-    e_all = np.concatenate((e_left, e_right))
-    chi_squared = np.sum(e_all)
-    RMS = np.sqrt(chi_squared) / len(e_all)
-    return RMS
+    return radial_RMS(R, Z, R_edges, Z_edges)

@@ -1,10 +1,4 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 28 18:57:09 2018
-
-@author: fr
-"""
 from skimage import io
 
 

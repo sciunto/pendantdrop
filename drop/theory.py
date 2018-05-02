@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Feb 19 17:03:15 2018
-
-@author: miguet
-"""
 import numpy as np
 
 from scipy.integrate import odeint
