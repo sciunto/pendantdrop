@@ -30,10 +30,9 @@ def young_laplace(gamma, angle, center_y, center_x, radius, R_edges, Z_edges,
     radius : scalar
 
     R_edges : array
-
+        Radial coordinates of the edge.
     Z_edges : array
-
-
+        Vertical coordinates of the edge.
     calib : scalar
         Calibration in mm per px.
     rho : scalar, optional
@@ -116,47 +115,6 @@ def squared_distance(R, Z, R_edges, Z_edges):
     return (R_theo_interpolated - R_edges)**2
 
 
-def deviation_edge_model(variables, center_x, radius, R_edges, Z_edges, calib):
-    """
-    Return the RMS for a profile given by set of parameters to the experimental profile.
-
-    Parameters
-    ----------
-    variables : tuple
-        (surface tension, angle, center_y)
-    radius : scalar
-
-    R_edges : array
-        Radial coordinates of the edge.
-    Z_edges : array
-        Vertical coordinates of the edge.
-    center_x :
-
-    calib :
-
-
-    Returns
-    -------
-    RMS
-    """
-    R, Z = young_laplace(*variables, center_x, radius, R_edges, Z_edges, calib)
-
-    # Split profiles to compute errors on each side
-    R_left, Z_left, R_right, Z_right = split_profile(R, Z)
-    R_edges_left, Z_edges_left, R_edges_right, Z_edges_right = split_profile(R_edges, Z_edges)
-
-    # Error on both sides.
-    e_left = squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
-    e_right = squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
-
-    # Merge errrors
-    e_all = np.concatenate((e_left, e_right))
-    chi_squared = np.sum(e_all)
-    RMS = np.sqrt(chi_squared) / len(e_all)
-    return RMS
-
-
-
 def deviation_edge_model_simple(variables, angle, center_y, center_x, radius, R_edges, Z_edges, calib):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
@@ -173,8 +131,8 @@ def deviation_edge_model_simple(variables, angle, center_y, center_x, radius, R_
         Vertical coordinates of the edge.
     center_x :
 
-    calib :
-
+    calib : scalar
+        Calibration in mm per px.
 
     Returns
     -------
@@ -213,8 +171,8 @@ def deviation_edge_model_full(variables, R_edges, Z_edges, calib):
         Vertical coordinates of the edge.
     center_x :
 
-    calib :
-
+    calib : scalar
+        Calibration in mm per px.
 
     Returns
     -------

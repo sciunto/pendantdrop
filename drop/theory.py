@@ -51,15 +51,23 @@ def young_laplace_diff_equation(variables, space, bond_number):
 
 def theoretical_contour(bond_number, calib, num_points=1e3):
     """
-    Compute the theoretical contour from the Young-Laplace differential equation.
+    Compute a theoretical contour from the Young-Laplace differential equation.
 
 
     Parameters
     ----------
-
+    bond_number : scalar
+        Bond number.
+    calib : scalar
+        Calibration in mm per px.
+    num_points : scalar, optional
+        Number of points used to compute the profile. These points are
+        evenly spaces from s=0 to s=10.
 
     Returns
     -------
+    (R, Z) : tuple
+        R and Z coordinates.
 
     Notes
     -----

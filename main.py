@@ -14,17 +14,16 @@ from drop.io import load_image
 from drop.edge import fit_circle_tip
 from drop.edge import detect_edges
 from drop.edge import guess_angle
-from drop.optimization import young_laplace,\
-                                deviation_edge_model_simple,\
-                                deviation_edge_model_full
+from drop.optimization import young_laplace, deviation_edge_model_simple,\
+                              deviation_edge_model_full
 
 
 # x = along Z
 # y = along R
 
 
-if __name__ == '__main__':
 
+def main():
     image_path = 'uEye_Image_000827.bmp'
     zoom = ([100, 1312], [400, 1900])
     calib = 0.00124 / 400  # mm / px
@@ -53,7 +52,8 @@ if __name__ == '__main__':
     ini_variables = np.array((initial_surface_tension))
     res = minimize(deviation_edge_model_simple,
                    ini_variables,
-                   args=(theta, center_y, center_x, radius, R_edges, Z_edges, calib),
+                   args=(theta, center_y, center_x,
+                         radius, R_edges, Z_edges, calib),
                    method='L-BFGS-B',
                    bounds=((min_surface_tension, max_surface_tension),),
                    options={'maxiter': 10,
@@ -101,3 +101,7 @@ if __name__ == '__main__':
     plt.plot(center_y, center_x, 'bo')
     plt.title('Gamma = %f N/m' % optimal_variables[0])
     plt.show()
+
+
+if __name__ == '__main__':
+    main()
