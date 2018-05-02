@@ -124,12 +124,16 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, R_
         (surface tension, angle, center_R)
     radius : scalar
 
+    center_R :
+
+    center_Z :
+
+    radius :
+
     R_edges : array
         Radial coordinates of the edge.
     Z_edges : array
         Vertical coordinates of the edge.
-    center_Z :
-
     calib : scalar
         Calibration in mm per px.
 
@@ -162,14 +166,10 @@ def deviation_edge_model_full(variables, R_edges, Z_edges, calib):
     ----------
     variables : tuple
         (surface tension, angle, center_R)
-    radius : scalar
-
     R_edges : array
         Radial coordinates of the edge.
     Z_edges : array
         Vertical coordinates of the edge.
-    center_Z :
-
     calib : scalar
         Calibration in mm per px.
 
