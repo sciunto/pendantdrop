@@ -14,6 +14,8 @@ from drop.optimization import young_laplace, deviation_edge_model_simple,\
                               deviation_edge_model_full
 
 
+from drop.deviation import orthogonal_RMS, radial_RMS
+
 def main():
     image_path = 'uEye_Image_000827.bmp'
     zoom = ([100, 1312], [400, 1900])
@@ -80,6 +82,11 @@ def main():
     # Plot
     R, Z = young_laplace(*optimal_variables,
                          R_edges, Z_edges, calib, num_points=1e4)
+
+
+    oRMS = orthogonal_RMS(R, Z, R_edges, Z_edges)
+    rRMS = radial_RMS(R, Z, R_edges, Z_edges)
+    print(oRMS, rRMS)
 
     plt.figure()
     ax = plt.axes()

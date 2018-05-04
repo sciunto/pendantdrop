@@ -192,7 +192,7 @@ def fit_circle_tip(shape, R, Z, method='ransac', debug=False):
     Returns
     -------
     parameters : tuple
-        (center_Z, center_R, radius, tip_position)
+        (center_Z, center_R, radius)
     """
     if method.lower() == 'ransac':
         return _fit_circle_tip_ransac(shape, R, Z, debug=debug)

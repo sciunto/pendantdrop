@@ -2,7 +2,7 @@
 import numpy as np
 
 from drop.theory import rotate_lines, theoretical_contour
-from drop.deviation import radial_RMS
+from drop.deviation import radial_RMS, orthogonal_RMS
 
 
 def young_laplace(gamma, angle, center_R, center_Z, radius, R_edges, Z_edges,
@@ -79,7 +79,6 @@ def young_laplace(gamma, angle, center_R, center_Z, radius, R_edges, Z_edges,
     return R, Z
 
 
-
 def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, R_edges, Z_edges, calib):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
@@ -110,7 +109,6 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, R_
     R, Z = young_laplace(*variables, angle, center_R, center_Z, radius, R_edges, Z_edges, calib)
 
     return radial_RMS(R, Z, R_edges, Z_edges)
-
 
 
 def deviation_edge_model_full(variables, R_edges, Z_edges, calib):
