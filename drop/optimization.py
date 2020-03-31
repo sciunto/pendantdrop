@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from scipy import constants
 
 from drop.theory import rotate_lines, theoretical_contour
 from drop.deviation import radial_RMS, orthogonal_RMS
 
 
 def young_laplace(surface_tension, angle, center_R, center_Z, radius, R_edges, Z_edges,
-                  calib, rho=1000, gravity=9.81, num_points=1e3):
+                  calib, rho=1000, gravity=None, num_points=1e3):
     """
     Returns the Young Laplace solution resized and oriented to the image.
 
@@ -31,7 +32,7 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, R_edges, Z
     rho : scalar, optional
         Fluid density.
     gravity : scalar, optional
-        Gravitational acceleration.
+        Gravitational acceleration. If None, scipy.constants is used.
     num_points : scalar, optional
         Number of points used in `theoretical_contour`
 
@@ -40,6 +41,9 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, R_edges, Z
     coordinates : tuple
         (R, Z)
     """
+    if gravity is None:
+        gravity = constants.g
+
     rho_g = rho * gravity
     capillary_length = np.sqrt(surface_tension / rho_g)
     r0 = radius * calib
