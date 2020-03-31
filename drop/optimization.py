@@ -7,7 +7,7 @@ from drop.deviation import radial_RMS, orthogonal_RMS
 
 
 def young_laplace(surface_tension, angle, center_R, center_Z, radius, RZ_edges,
-                  calib, rho=1000, gravity=None, num_points=1e3):
+                  calib, *, rho=1000, gravity=None, num_points=1e3):
     """
     Returns the Young Laplace solution resized and oriented to the image.
 
@@ -83,7 +83,7 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, RZ_edges,
     return R, Z
 
 
-def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ_edges, calib, RMS=None):
+def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ_edges, calib, *, RMS=None):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
 
@@ -91,7 +91,7 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ
     ----------
     variables : tuple
         (surface tension, angle, center_R)
-    radius : scalar
+    angle : scalar
 
     center_R :
 
@@ -119,7 +119,7 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ
     return RMS(RZ, RZ_edges)
 
 
-def deviation_edge_model_full(variables, RZ_edges, calib, RMS=None):
+def deviation_edge_model_full(variables, RZ_edges, calib, *, RMS=None):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
 
