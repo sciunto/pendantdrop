@@ -58,7 +58,6 @@ def main():
     print(f'Step 1-RMS: {res.fun}')
 
     # Step 2: consider all the parameters
-    # as it is not guessed so far
     ini_variables2 = np.array((guessed_surface_tension,
                                theta, center_R, center_Z, radius,))
     param_bounds = ((guessed_surface_tension-2e-3, guessed_surface_tension+2e-3),
@@ -88,7 +87,7 @@ def main():
 
     oRMS = orthogonal_RMS(R, Z, R_edges, Z_edges)
     rRMS = radial_RMS(R, Z, R_edges, Z_edges)
-    print(oRMS, rRMS)
+    print(f'OrthoRMS: {oRMS}, RadialRMS {rRMS}')
 
     plt.figure()
     ax = plt.axes()
@@ -99,7 +98,7 @@ def main():
     plt.plot(R_edges, Z_edges, '*g', markersize=1)
     plt.plot(R, Z, 'r-', markersize=2)
     plt.plot(center_R, center_Z, 'bo')
-    plt.title('Gamma = %f N/m' % optimal_variables[0])
+    plt.title(f'Gamma = {optimal_variables[0]} N/m')
     plt.show()
 
 
