@@ -31,11 +31,11 @@ def main():
 
     image1 = load_image(image_path, region=zoom)
 
-    edges, R_edges, Z_edges = detect_edges(image1, method='contour')
+    edges, RZ_edges = detect_edges(image1, method='contour')
 
     # Guess parameters
     center_Z, center_R, radius = fit_circle_tip(edges.shape,
-                                                R_edges, Z_edges,
+                                                RZ_edges,
                                                 method='ransac',
                                                 debug=False)
     theta = guess_angle(edges, center_Z, center_R)
@@ -48,7 +48,7 @@ def main():
     res = minimize(deviation_edge_model_simple,
                    ini_variables,
                    args=(theta, center_R, center_Z,
-                         radius, R_edges, Z_edges, calib),
+                         radius, RZ_edges, calib),
                    method='L-BFGS-B',
                    bounds=((min_surface_tension, max_surface_tension),),
                    options={'maxiter': 10,
@@ -69,7 +69,7 @@ def main():
 
     res = minimize(deviation_edge_model_full,
                    ini_variables2,
-                   args=(R_edges, Z_edges, calib),
+                   args=(RZ_edges, calib),
                    method='L-BFGS-B',
                    bounds=param_bounds,
                    options={'maxiter': 100,
@@ -82,11 +82,11 @@ def main():
 
     # Plot
     R, Z = young_laplace(*optimal_variables,
-                         R_edges, Z_edges, calib, num_points=1e4)
+                         RZ_edges, calib, num_points=1e4)
 
 
-    oRMS = orthogonal_RMS(R, Z, R_edges, Z_edges)
-    rRMS = radial_RMS(R, Z, R_edges, Z_edges)
+    oRMS = orthogonal_RMS(R, Z, RZ_edges)
+    rRMS = radial_RMS(R, Z, RZ_edges)
     print(f'OrthoRMS: {oRMS}, RadialRMS {rRMS}')
 
     plt.figure()
@@ -95,7 +95,7 @@ def main():
     circle = plt.Circle((center_R, center_Z), radius=radius,
                         color='c', fill=False)
     ax.add_patch(circle)
-    plt.plot(R_edges, Z_edges, '*g', markersize=1)
+    plt.plot(*RZ_edges, '*g', markersize=1)
     plt.plot(R, Z, 'r-', markersize=2)
     plt.plot(center_R, center_Z, 'bo')
     plt.title(f'Gamma = {optimal_variables[0]:.3} N/m')

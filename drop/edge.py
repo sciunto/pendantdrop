@@ -37,7 +37,7 @@ def detect_edges(image, method='contour', **kwarg):
     else:
         raise ValueError('Wrong method value')
 
-    return edges, R_edges, Z_edges
+    return edges, (R_edges, Z_edges)
 
 
 def _find_circle(edges, hough_radii):
@@ -172,7 +172,7 @@ def _fit_circle_tip_ransac(shape, R, Z, debug=False):
     return cx, cy, r
 
 
-def fit_circle_tip(shape, R, Z, method='ransac', debug=False):
+def fit_circle_tip(shape, RZ_edges, method='ransac', debug=False):
     """
     Fit the tip of the drop with a circle.
 
@@ -194,6 +194,7 @@ def fit_circle_tip(shape, R, Z, method='ransac', debug=False):
     parameters : tuple
         (center_Z, center_R, radius)
     """
+    R, Z = RZ_edges
     if method.lower() == 'ransac':
         return _fit_circle_tip_ransac(shape, R, Z, debug=debug)
     elif method.lower() == 'hough':
@@ -237,7 +238,7 @@ def guess_angle(edges, center_Z, center_R):
 
 
 
-def guess_parameters(edges, R_edges, Z_edges, tip, center_Z, center_R):
+def guess_parameters(edges, RZ_edges, tip, center_Z, center_R):
     """
     Guess values for the angle and the tip position.
 
@@ -245,8 +246,8 @@ def guess_parameters(edges, R_edges, Z_edges, tip, center_Z, center_R):
     ----------
     edges : boolean image
         Image containing the edges to fit.
-    R_edges : array
-        Radial coordinates of the edge.
+    RZ_edges : tuple of array
+        (Radial, Vertical) coordinates of the edge.
     Z_edges : array
         Vertical coordinates of the edge.
     tip :
@@ -262,6 +263,7 @@ def guess_parameters(edges, R_edges, Z_edges, tip, center_Z, center_R):
         (theta, tipx, tipy)
     """
     c_center = np.array((center_R, center_Z))
+    R_edges, Z_edges = RZ_edges
 
     # assume orientation base at bottom of image
     pixels_on_baseline = np.where(edges[-1, :] == True)

@@ -6,7 +6,7 @@ from drop.theory import rotate_lines, theoretical_contour
 from drop.deviation import radial_RMS, orthogonal_RMS
 
 
-def young_laplace(surface_tension, angle, center_R, center_Z, radius, R_edges, Z_edges,
+def young_laplace(surface_tension, angle, center_R, center_Z, radius, RZ_edges,
                   calib, rho=1000, gravity=None, num_points=1e3):
     """
     Returns the Young Laplace solution resized and oriented to the image.
@@ -23,10 +23,8 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, R_edges, Z
 
     radius : scalar
 
-    R_edges : array
-        Radial coordinates of the edge.
-    Z_edges : array
-        Vertical coordinates of the edge.
+    RZ_edges : tuple of array
+        (Radial, Vertical) coordinates of the edge.
     calib : scalar
         Calibration in mm per px.
     rho : scalar, optional
@@ -41,6 +39,8 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, R_edges, Z
     coordinates : tuple
         (R, Z)
     """
+    R_edges, Z_edges = RZ_edges
+
     if gravity is None:
         gravity = constants.g
 
@@ -83,7 +83,7 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, R_edges, Z
     return R, Z
 
 
-def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, R_edges, Z_edges, calib, RMS=None):
+def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ_edges, calib, RMS=None):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
 
@@ -99,29 +99,27 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, R_
 
     radius :
 
-    R_edges : array
-        Radial coordinates of the edge.
-    Z_edges : array
-        Vertical coordinates of the edge.
+    RZ_edges : tuple of array
+        (Radial, Vertical) coordinates of the edge.
     calib : scalar
         Calibration in mm per px.
     RMS : callable
-        function(R_theo, Z_theo, R_edges, Z_edges) to compute the RMS.
+        function(R_theo, Z_theo, RZ_edges) to compute the RMS.
         If None, radial_RMS is used.
 
     Returns
     -------
     RMS
     """
-    R, Z = young_laplace(*variables, angle, center_R, center_Z, radius, R_edges, Z_edges, calib)
+    R, Z = young_laplace(*variables, angle, center_R, center_Z, radius, RZ_edges, calib)
 
     if RMS is None:
         RMS = radial_RMS
 
-    return RMS(R, Z, R_edges, Z_edges)
+    return RMS(R, Z, RZ_edges)
 
 
-def deviation_edge_model_full(variables, R_edges, Z_edges, calib, RMS=None):
+def deviation_edge_model_full(variables, RZ_edges, calib, RMS=None):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
 
@@ -129,23 +127,21 @@ def deviation_edge_model_full(variables, R_edges, Z_edges, calib, RMS=None):
     ----------
     variables : tuple
         (surface tension, angle, center_R)
-    R_edges : array
-        Radial coordinates of the edge.
-    Z_edges : array
-        Vertical coordinates of the edge.
+    RZ_edges : tuple of array
+        (Radial, Vertical) coordinates of the edge.
     calib : scalar
         Calibration in mm per px.
     RMS : callable
-        function(R_theo, Z_theo, R_edges, Z_edges) to compute the RMS.
+        function(R_theo, Z_theo, RZ_edges) to compute the RMS.
         If None, radial_RMS is used.
 
     Returns
     -------
     RMS
     """
-    R, Z = young_laplace(*variables, R_edges, Z_edges, calib)
+    R, Z = young_laplace(*variables, RZ_edges, calib)
 
     if RMS is None:
         RMS = radial_RMS
 
-    return RMS(R, Z, R_edges, Z_edges)
+    return RMS(R, Z, RZ_edges)
