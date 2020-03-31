@@ -111,12 +111,12 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ
     -------
     RMS
     """
-    R, Z = young_laplace(*variables, angle, center_R, center_Z, radius, RZ_edges, calib)
+    RZ = young_laplace(*variables, angle, center_R, center_Z, radius, RZ_edges, calib)
 
     if RMS is None:
         RMS = radial_RMS
 
-    return RMS(R, Z, RZ_edges)
+    return RMS(RZ, RZ_edges)
 
 
 def deviation_edge_model_full(variables, RZ_edges, calib, RMS=None):
@@ -139,9 +139,9 @@ def deviation_edge_model_full(variables, RZ_edges, calib, RMS=None):
     -------
     RMS
     """
-    R, Z = young_laplace(*variables, RZ_edges, calib)
+    RZ = young_laplace(*variables, RZ_edges, calib)
 
     if RMS is None:
         RMS = radial_RMS
 
-    return RMS(R, Z, RZ_edges)
+    return RMS(RZ, RZ_edges)

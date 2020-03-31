@@ -81,12 +81,12 @@ def main():
     print(f'Step 2-RMS: {res.fun}')
 
     # Plot
-    R, Z = young_laplace(*optimal_variables,
+    RZ_model = young_laplace(*optimal_variables,
                          RZ_edges, calib, num_points=1e4)
 
 
-    oRMS = orthogonal_RMS(R, Z, RZ_edges)
-    rRMS = radial_RMS(R, Z, RZ_edges)
+    oRMS = orthogonal_RMS(RZ_model, RZ_edges)
+    rRMS = radial_RMS(RZ_model, RZ_edges)
     print(f'OrthoRMS: {oRMS}, RadialRMS {rRMS}')
 
     plt.figure()
@@ -96,7 +96,7 @@ def main():
                         color='c', fill=False)
     ax.add_patch(circle)
     plt.plot(*RZ_edges, '*g', markersize=1)
-    plt.plot(R, Z, 'r-', markersize=2)
+    plt.plot(*RZ_model, 'r-', markersize=2)
     plt.plot(center_R, center_Z, 'bo')
     plt.title(f'Gamma = {optimal_variables[0]:.3} N/m')
     plt.show()
