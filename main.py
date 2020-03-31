@@ -55,7 +55,7 @@ def main():
                             'ftol': 1e-2,
                             'disp': True})
     guessed_surface_tension = res.x[0]
-    print('Step 1-RMS:', res.fun)
+    print(f'Step 1-RMS: {res.fun}')
 
     # Step 2: consider all the parameters
     # as it is not guessed so far
@@ -77,9 +77,9 @@ def main():
                             'ftol': 1e-6,
                             'disp': True})
     optimal_variables = res.x
-    print('Step 2-ini params BFGS:', ini_variables2)
-    print('Step 2-opt params BFGS:', optimal_variables)
-    print('Step 2-RMS:', res.fun)
+    print(f'Step 2-ini params BFGS: {ini_variables2}')
+    print(f'Step 2-opt params BFGS: {optimal_variables}')
+    print(f'Step 2-RMS: {res.fun}')
 
     # Plot
     R, Z = young_laplace(*optimal_variables,
