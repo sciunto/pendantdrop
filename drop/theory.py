@@ -72,7 +72,7 @@ def theoretical_contour(bond_number, calib, num_points=1e3):
     s_max = 10
     # TODO s_max is an arbitrary value.
     # Need to check if an increase is needed... or something.
-    s_tilde = np.linspace(0, s_max, num_points)
+    s_tilde = np.linspace(0, s_max, int(num_points))
     solution = odeint(young_laplace_diff_equation,
                       (0, 0, 0), s_tilde,
                       args=(bond_number,))
