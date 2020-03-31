@@ -50,7 +50,7 @@ def load_image(path, region=None):
     -------
     image
     """
-    image = io.imread(path, as_grey=True)
+    image = io.imread(path, as_gray=True)
 
     if region is not None:
         image = image[region[0][0]:region[0][1],
