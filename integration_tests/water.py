@@ -20,7 +20,7 @@ from drop.optimization import young_laplace, deviation_edge_model_simple,\
 from drop.deviation import orthogonal_RMS, radial_RMS
 
 def test():
-    image_path = os.path.join('..', 'data', 'uEye_Image_000827.bmp')
+    image_path = os.path.join('data', 'uEye_Image_000827.bmp')
     zoom = ([100, 1312], [400, 1900])
     calib = 0.00124 / 400  # mm / px
     # Arbitrary first guess for gamma
@@ -54,7 +54,7 @@ def test():
                    bounds=((min_surface_tension, max_surface_tension),),
                    options={'maxiter': 10,
                             'ftol': 1e-2,
-                            'disp': True})
+                            'disp': False})
     guessed_surface_tension = res.x[0]
     print(f'Step 1-RMS: {res.fun}')
 
@@ -75,11 +75,8 @@ def test():
                    bounds=param_bounds,
                    options={'maxiter': 100,
                             'ftol': 1e-6,
-                            'disp': True})
+                            'disp': False})
     optimal_variables = res.x
-    print(f'Step 2-ini params BFGS: {ini_variables2}')
-    print(f'Step 2-opt params BFGS: {optimal_variables}')
-    print(f'Step 2-RMS: {res.fun}')
 
     # Plot
     RZ_model = young_laplace(*optimal_variables,
@@ -88,7 +85,6 @@ def test():
 
     oRMS = orthogonal_RMS(RZ_model, RZ_edges)
     rRMS = radial_RMS(RZ_model, RZ_edges)
-    print(f'OrthoRMS: {oRMS}, RadialRMS {rRMS}')
 
     Gamma = optimal_variables[0]
-    assert Gamma == 0.7
+    np.testing.assert_almost_equal(Gamma, 0.07, decimal=3)
