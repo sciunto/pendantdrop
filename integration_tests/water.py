@@ -20,7 +20,7 @@ from drop.optimization import young_laplace, deviation_edge_model_simple,\
 from drop.deviation import orthogonal_RMS, radial_RMS
 
 def test():
-    image_path = os.path.join('data', 'uEye_Image_000827.bmp')
+    image_path = os.path.join('data', 'uEye_Image_000827.png')
     zoom = ([100, 1312], [400, 1900])
     calib = 0.00124 / 400  # mm / px
     # Arbitrary first guess for gamma
