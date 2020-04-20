@@ -98,7 +98,7 @@ def main():
     plt.plot(*RZ_edges, '*g', markersize=1)
     plt.plot(*RZ_model, 'r-', markersize=2)
     plt.plot(center_R, center_Z, 'bo')
-    plt.title(f'Gamma = {optimal_variables[0]:.3} N/m')
+    plt.title(f'Gamma = {optimal_variables[0]:.4} N/m')
     plt.show()
 
 
