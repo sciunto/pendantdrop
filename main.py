@@ -19,15 +19,15 @@ from drop.optimization import young_laplace, deviation_edge_model_simple,\
 from drop.deviation import orthogonal_RMS, radial_RMS
 
 def main():
-    image_path = os.path.join('data', 'uEye_Image_000827.bmp')
+    # image_path = 'uEye_Image_002767.png'
+    # zoom = ((814, 1020), (1920, 1772))
+    image_path = os.path.join('data', 'uEye_Image_000827.png')
     zoom = ([100, 1312], [400, 1900])
     calib = 0.00124 / 400  # mm / px
     # Arbitrary first guess for gamma
     initial_surface_tension = 0.04  # N/m
     min_surface_tension = 0.02
     max_surface_tension = 0.1
-    # image_path = 'uEye_Image_002767.bmp'
-    # zoom = ((814, 1020), (1920, 1772))
 
     image1 = load_image(image_path, region=zoom)
 
