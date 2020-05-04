@@ -15,7 +15,9 @@ def detect_edges(image, method='contour', **kwarg):
     image : ndarray
         Grayscale image.
     method : string, optional
-        'contour' or 'canny'
+        Method for detecting contours. Either 'contour' or 'canny'.
+    kwarg: dict
+        Optional arguments passed to canny filter.
 
     Returns
     -------
