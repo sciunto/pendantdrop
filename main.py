@@ -18,6 +18,7 @@ from drop.optimization import young_laplace, deviation_edge_model_simple,\
 
 from drop.deviation import orthogonal_RMS, radial_RMS
 
+
 def main():
     # image_path = 'uEye_Image_002767.png'
     # zoom = ((814, 1020), (1920, 1772))
@@ -26,8 +27,7 @@ def main():
     calib = 0.00124 / 400  # mm / px
     # Arbitrary first guess for gamma
     initial_surface_tension = 0.04  # N/m
-    min_surface_tension = 0.02
-    max_surface_tension = 0.1
+    surface_tension_range = (0.02, 0.1)
 
     image1 = load_image(image_path, region=zoom)
 
@@ -50,7 +50,7 @@ def main():
                    args=(theta, center_R, center_Z,
                          radius, RZ_edges, calib),
                    method='L-BFGS-B',
-                   bounds=((min_surface_tension, max_surface_tension),),
+                   bounds=(surface_tension_range,),
                    options={'maxiter': 10,
                             'ftol': 1e-2,
                             'disp': True})
@@ -82,8 +82,7 @@ def main():
 
     # Plot
     RZ_model = young_laplace(*optimal_variables,
-                         RZ_edges, calib, num_points=1e4)
-
+                             RZ_edges, calib, num_points=1e4)
 
     oRMS = orthogonal_RMS(RZ_model, RZ_edges)
     rRMS = radial_RMS(RZ_model, RZ_edges)
