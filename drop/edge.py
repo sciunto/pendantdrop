@@ -206,16 +206,19 @@ def fit_circle_tip(shape, RZ_edges, method='ransac', debug=False):
 
 def guess_angle(edges, center_Z, center_R):
     """
-    Guess values for the angle and the circle's center.
+    Guess tilting angle value.
+
+    The value is guessed based on the center position of the
+    tip circle and the center of the drop base.
 
     Parameters
     ----------
     edges : boolean image
         Image containing the edges to fit.
     center_Z :
-
+        Vertical position of tip circle center.
     center_R :
-
+        Horizontal position of tip circle center.
 
     Returns
     -------
