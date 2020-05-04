@@ -19,7 +19,7 @@ def _drop_theo_points_outside_detection(R, Z, RZ_edges):
     return R, Z
 
 
-def _young_laplace(surface_tension, angle, center_R, center_Z, radius,
+def young_laplace(surface_tension, angle, center_R, center_Z, radius, RZ_edges,
                   calib, *, rho=1000, gravity=None, num_points=1e3):
     """
     Returns the Young Laplace solution resized and oriented to the image.
@@ -85,6 +85,7 @@ def _young_laplace(surface_tension, angle, center_R, center_Z, radius,
     R = R / calib + center_R
     Z = Z / calib + (center_Z - radius)
 
+    R, Z = _drop_theo_points_outside_detection(R, Z, RZ_edges)
     return R, Z
 
 
@@ -116,8 +117,7 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ
     -------
     RMS
     """
-    R, Z = _young_laplace(*variables, angle, center_R, center_Z, radius, calib)
-    RZ = _drop_theo_points_outside_detection(R, Z, RZ_edges)
+    RZ = young_laplace(*variables, angle, center_R, center_Z, radius, RZ_edges, calib)
 
     if RMS is None:
         RMS = radial_RMS
@@ -145,8 +145,7 @@ def deviation_edge_model_full(variables, RZ_edges, calib, *, RMS=None):
     -------
     RMS
     """
-    R, Z = _young_laplace(*variables, calib)
-    RZ = _drop_theo_points_outside_detection(R, Z, RZ_edges)
+    RZ = young_laplace(*variables, RZ_edges, calib)
 
     if RMS is None:
         RMS = radial_RMS
