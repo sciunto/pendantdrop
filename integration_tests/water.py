@@ -4,7 +4,6 @@ import pytest
 
 import os.path
 import numpy as np
-import matplotlib.pyplot as plt
 
 from scipy.optimize import minimize
 
@@ -18,6 +17,7 @@ from drop.optimization import young_laplace, deviation_edge_model_simple,\
 
 
 from drop.deviation import orthogonal_RMS, radial_RMS
+
 
 def test():
     image_path = os.path.join('data', 'uEye_Image_000827.png')
@@ -56,7 +56,6 @@ def test():
                             'ftol': 1e-2,
                             'disp': False})
     guessed_surface_tension = res.x[0]
-    print(f'Step 1-RMS: {res.fun}')
 
     # Step 2: consider all the parameters
     ini_variables2 = np.array((guessed_surface_tension,
@@ -77,14 +76,6 @@ def test():
                             'ftol': 1e-6,
                             'disp': False})
     optimal_variables = res.x
-
-    # Plot
-    RZ_model = young_laplace(*optimal_variables,
-                         RZ_edges, calib, num_points=1e4)
-
-
-    oRMS = orthogonal_RMS(RZ_model, RZ_edges)
-    rRMS = radial_RMS(RZ_model, RZ_edges)
 
     Gamma = optimal_variables[0]
     np.testing.assert_almost_equal(Gamma, 0.07, decimal=3)
