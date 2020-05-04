@@ -27,8 +27,7 @@ def main():
     calib = 0.00124 / 400  # mm / px
     # Arbitrary first guess for gamma
     initial_surface_tension = 0.04  # N/m
-    min_surface_tension = 0.02
-    max_surface_tension = 0.1
+    surface_tension_range = (0.02, 0.1)
 
     image1 = load_image(image_path, region=zoom)
 
@@ -51,7 +50,7 @@ def main():
                    args=(theta, center_R, center_Z,
                          radius, RZ_edges, calib),
                    method='L-BFGS-B',
-                   bounds=((min_surface_tension, max_surface_tension),),
+                   bounds=(surface_tension_range,),
                    options={'maxiter': 10,
                             'ftol': 1e-2,
                             'disp': True})

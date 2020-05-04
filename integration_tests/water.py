@@ -19,14 +19,14 @@ from drop.optimization import young_laplace, deviation_edge_model_simple,\
 from drop.deviation import orthogonal_RMS, radial_RMS
 
 
-def test():
+def test_ransac():
     image_path = os.path.join('data', 'uEye_Image_000827.png')
     zoom = ([100, 1312], [400, 1900])
     calib = 0.00124 / 400  # mm / px
+
     # Arbitrary first guess for gamma
     initial_surface_tension = 0.04  # N/m
-    min_surface_tension = 0.02
-    max_surface_tension = 0.1
+    surface_tension_limits = (0.02, 0.1) # N/m
     # image_path = 'uEye_Image_002767.bmp'
     # zoom = ((814, 1020), (1920, 1772))
 
@@ -51,7 +51,7 @@ def test():
                    args=(theta, center_R, center_Z,
                          radius, RZ_edges, calib),
                    method='L-BFGS-B',
-                   bounds=((min_surface_tension, max_surface_tension),),
+                   bounds=(surface_tension_limits,),
                    options={'maxiter': 10,
                             'ftol': 1e-2,
                             'disp': False})
