@@ -5,8 +5,21 @@ from scipy import constants
 from drop.theory import rotate_lines, theoretical_contour
 from drop.deviation import radial_RMS, orthogonal_RMS
 
+def _drop_theo_points_outside_detection(R, Z, RZ_edges):
+    """
+    Remove theoretical points outside the range of detected ones.
 
-def young_laplace(surface_tension, angle, center_R, center_Z, radius, RZ_edges,
+    """
+    R_edges, Z_edges = RZ_edges
+    # Drop the theoretical points that go beyond the latest detected pixel
+    # ie outside the image
+    aa = np.where(Z > np.max(Z_edges))
+    R = np.delete(R, aa)
+    Z = np.delete(Z, aa)
+    return R, Z
+
+
+def _young_laplace(surface_tension, angle, center_R, center_Z, radius,
                   calib, *, rho=1000, gravity=None, num_points=1e3):
     """
     Returns the Young Laplace solution resized and oriented to the image.
@@ -39,8 +52,6 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, RZ_edges,
     coordinates : tuple
         (R, Z)
     """
-    R_edges, Z_edges = RZ_edges
-
     if gravity is None:
         gravity = constants.g
 
@@ -74,12 +85,6 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, RZ_edges,
     R = R / calib + center_R
     Z = Z / calib + (center_Z - radius)
 
-    # Drop the theoretical points that go beyond the latest detected pixel
-    # ie outside the image
-    aa = np.where(Z > np.max(Z_edges))
-    R = np.delete(R, aa)
-    Z = np.delete(Z, aa)
-
     return R, Z
 
 
@@ -111,7 +116,8 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ
     -------
     RMS
     """
-    RZ = young_laplace(*variables, angle, center_R, center_Z, radius, RZ_edges, calib)
+    R, Z = _young_laplace(*variables, angle, center_R, center_Z, radius, calib)
+    RZ = _drop_theo_points_outside_detection(R, Z, RZ_edges)
 
     if RMS is None:
         RMS = radial_RMS
@@ -139,7 +145,8 @@ def deviation_edge_model_full(variables, RZ_edges, calib, *, RMS=None):
     -------
     RMS
     """
-    RZ = young_laplace(*variables, RZ_edges, calib)
+    R, Z = _young_laplace(*variables, calib)
+    RZ = _drop_theo_points_outside_detection(R, Z, RZ_edges)
 
     if RMS is None:
         RMS = radial_RMS
