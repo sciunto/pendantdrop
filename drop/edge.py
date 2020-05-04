@@ -14,7 +14,7 @@ def detect_edges(image, method='contour', **kwarg):
     ----------
     image : ndarray
         Grayscale image.
-    filter : string, optional
+    method : string, optional
         'contour' or 'canny'
 
     Returns
@@ -32,8 +32,8 @@ def detect_edges(image, method='contour', **kwarg):
         edges[Z_edges.astype(np.int), R_edges.astype(np.int)] = True
     elif method.lower() == 'canny':
         edges = canny(image, **kwarg)
-        Z_edges=np.where(edges==True)[0]
-        R_edges=np.where(edges==True)[1]
+        Z_edges = np.where(edges==True)[0]
+        R_edges = np.where(edges==True)[1]
     else:
         raise ValueError('Wrong method value')
 
@@ -180,12 +180,10 @@ def fit_circle_tip(shape, RZ_edges, method='ransac', debug=False):
     ----------
     shape : tuple
         Image shape.
-    R : array
-        Radial coordinates.
-    Z : array
-        Vertical coordinates.
+    RZ_edges : tuple of array
+        (Radial, Vertical) coordinates of the edge.
     method : str, optional
-        Name of the method: ransac or hough.
+        Name of the method: `ransac` or `hough`.
     debug : boolean, optional
         If `True`, activate plots to visualize the fit.
 
@@ -235,7 +233,6 @@ def guess_angle(edges, center_Z, center_R):
     theta = np.arcsin(opp/hyp)
 
     return theta
-
 
 
 def guess_parameters(edges, RZ_edges, tip, center_Z, center_R):
