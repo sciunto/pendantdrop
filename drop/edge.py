@@ -118,7 +118,8 @@ def _fit_circle_tip_hough_transform(shape, R, Z):
     _, _, radius, _ = _find_circle(edges, hough_radii)
     # Fine grain
     hough_radii = np.arange(radius - 2 * step, radius + 2 * step, 1)
-    return _find_circle(edges, hough_radii)
+    center_Z, center_R, radius, _ = _find_circle(edges, hough_radii)
+    return center_Z, center_R, radius
 
 
 def _fit_circle_tip_ransac(shape, R, Z, debug=False):
