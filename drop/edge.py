@@ -153,7 +153,7 @@ def _fit_circle_tip_ransac(shape, R, Z, debug=False):
     points = np.column_stack((R_cropped, Z_cropped))
 
     model_robust, inliers = measure.ransac(points, measure.CircleModel,
-                                           min_samples=4,
+                                           min_samples=6,
                                            residual_threshold=.1,
                                            max_trials=1000)
 
