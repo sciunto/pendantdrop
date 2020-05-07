@@ -17,6 +17,6 @@ Welcome to PendantDrop's documentation!
 Indices and tables
 ==================
 
+* `API Reference <api/api.html>`_
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
