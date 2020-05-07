@@ -122,7 +122,7 @@ def _fit_circle_tip_hough_transform(shape, R, Z):
     return center_Z, center_R, radius
 
 
-def _fit_circle_tip_ransac(shape, R, Z, debug=False):
+def _fit_circle_tip_ransac(shape, R, Z, *, debug=False, **kwargs):
     """
     Fit the tip of the drop with a circle by RANSAC.
 
@@ -138,6 +138,8 @@ def _fit_circle_tip_ransac(shape, R, Z, debug=False):
         Vertical coordinates.
     debug : boolean, optional
         If `True`, activate plots to visualize the fit.
+    kwargs : dict, optional
+        Arguments passed to `skimage.measure.ransac`.
 
     Returns
     -------
@@ -145,7 +147,14 @@ def _fit_circle_tip_ransac(shape, R, Z, debug=False):
         (center_Z, center_R, radius)
 
     """
+    # Default ransac parameters
+    ransac_kwarg = {'min_samples': 6,
+                    'residual_threshold': .1,
+                    'max_trials': 1000,
+                    }
+    ransac_kwarg.update(kwargs)
 
+    # Apply a mask to keep only the considered pixels.
     mask = Z < Z.min() + 0.5 * (Z[R.argmin()] - Z.min())
     Z_cropped = Z[mask]
     R_cropped = R[mask]
@@ -153,9 +162,7 @@ def _fit_circle_tip_ransac(shape, R, Z, debug=False):
     points = np.column_stack((R_cropped, Z_cropped))
 
     model_robust, inliers = measure.ransac(points, measure.CircleModel,
-                                           min_samples=6,
-                                           residual_threshold=.1,
-                                           max_trials=1000)
+                                           **ransac_kwarg)
 
     cy, cx, r = model_robust.params
 
@@ -175,7 +182,7 @@ def _fit_circle_tip_ransac(shape, R, Z, debug=False):
     return cx, cy, r
 
 
-def fit_circle_tip(shape, RZ_edges, method='ransac', debug=False):
+def fit_circle_tip(shape, RZ_edges, *, method='ransac', debug=False, **kwargs):
     """
     Fit the tip of the drop with a circle.
 
@@ -189,6 +196,8 @@ def fit_circle_tip(shape, RZ_edges, method='ransac', debug=False):
         Name of the method: `ransac` or `hough`.
     debug : boolean, optional
         If `True`, activate plots to visualize the fit.
+    kwargs : dict, optional
+        Arguments passed to `skimage.measure.ransac`.
 
     Returns
     -------
@@ -197,7 +206,7 @@ def fit_circle_tip(shape, RZ_edges, method='ransac', debug=False):
     """
     R, Z = RZ_edges
     if method.lower() == 'ransac':
-        return _fit_circle_tip_ransac(shape, R, Z, debug=debug)
+        return _fit_circle_tip_ransac(shape, R, Z, debug=debug, **kwargs)
     elif method.lower() == 'hough':
         return _fit_circle_tip_hough_transform(shape, R, Z)
     else:
