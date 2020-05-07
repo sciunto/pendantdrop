@@ -13,7 +13,7 @@ Previously functions and classes were found by parsing the text of .py files.
 Extension modules should be discovered and included as well.
 
 This is a modified version of a script originally shipped with the PyMVPA
-project, then adapted for use first in NIPY and then in skimage. PyMVPA
+project, then adapted for use first in NIPY and then in drop. PyMVPA
 is an MIT-licensed project.
 """
 
@@ -218,7 +218,7 @@ class ApiDocWriter(object):
             # figure out if obj is a function or class
             if isinstance(obj, (FunctionType, BuiltinFunctionType)):
                 functions.append(obj_str)
-            elif isinstance(obj, ModuleType) and 'skimage' in mod.__name__:
+            elif isinstance(obj, ModuleType) and 'drop' in mod.__name__:
                 submodules.append(obj_str)
             else:
                 try:
@@ -474,10 +474,10 @@ class ApiDocWriter(object):
         w = idx.write
         w('.. AUTO-GENERATED FILE -- DO NOT EDIT!\n\n')
 
-        # We look at the module name.  If it is `skimage`, display, if `skimage.submodule`, only show `submodule`,
-        # if it is `skimage.submodule.subsubmodule`, ignore.
+        # We look at the module name.  If it is `drop`, display, if `drop.submodule`, only show `submodule`,
+        # if it is `drop.submodule.subsubmodule`, ignore.
 
-        title = "API Reference for skimage |version|"
+        title = "API Reference for drop |version|"
         w(title + "\n")
         w("=" * len(title) + "\n\n")
 

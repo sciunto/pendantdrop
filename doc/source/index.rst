@@ -5,6 +5,8 @@
 
 Welcome to PendantDrop's documentation!
 =======================================
+:Devel: `github.com project <https://github.com/sciunto-org/pendantdrop>`_
+:Generated: |today|
 
 .. toctree::
    :maxdepth: 2
