@@ -29,9 +29,12 @@ author = 'F. Boulogne and other contributors'
 # ones.
 extensions = [
         'sphinx.ext.autodoc',
+        'autoapi.extension',
         'sphinx.ext.mathjax',
         'numpydoc',
 ]
+
+autoapi_dirs = ['../../drop']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

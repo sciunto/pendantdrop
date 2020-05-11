@@ -21,13 +21,5 @@ help:
 
 all: html
 
-html: api
+html:
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-clean:
-	-rm -rf source/api
-
-api:
-	@mkdir -p source/api
-	$(PYTHON) tools/build_modref_templates.py
-	@echo "Build API docs...done."
