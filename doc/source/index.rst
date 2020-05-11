@@ -10,7 +10,10 @@ Welcome to PendantDrop's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+
+   api/api
+   contents
+
 
 
 
