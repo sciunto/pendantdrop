@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from skimage import io
 
+__all__ = ['load_image',]
 
 def _auto_crop(image, expand=20):
     """

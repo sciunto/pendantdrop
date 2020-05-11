@@ -5,6 +5,10 @@ from skimage.transform import hough_circle
 from skimage.feature import peak_local_max, canny
 from skimage import measure
 
+__all__ = ['detect_edges',
+           'fit_circle_tip',
+           'guess_angle',
+           ]
 
 def detect_edges(image, method='contour', **kwarg):
     """

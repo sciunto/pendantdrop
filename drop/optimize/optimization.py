@@ -2,8 +2,8 @@
 import numpy as np
 from scipy import constants
 
-from drop.theory import rotate_lines, theoretical_contour
-from drop.deviation import radial_RMS, orthogonal_RMS
+from .theory import rotate_lines, theoretical_contour
+from .deviation import radial_RMS, orthogonal_RMS
 
 def _drop_theo_points_outside_detection(R, Z, RZ_edges):
     """

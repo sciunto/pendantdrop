@@ -9,13 +9,13 @@ from scipy.optimize import minimize
 
 
 from drop.io import load_image
-from drop.edge import fit_circle_tip, detect_edges, guess_angle
-from drop.optimization import (young_laplace,
+from drop.improcessing import fit_circle_tip, detect_edges, guess_angle
+from drop.optimize import (young_laplace,
                                deviation_edge_model_simple,
                                deviation_edge_model_full)
 
 
-from drop.deviation import orthogonal_RMS, radial_RMS
+from drop.optimize.deviation import orthogonal_RMS, radial_RMS
 
 
 def main():
