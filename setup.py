@@ -1,20 +1,15 @@
 #!/usr/bin/env python
 
-try:
-    from setuptools import setup
-except ImportError as ex:
-    print('setuptools not found. Falling back to distutils.core')
-    from distutils.core import setup
+import setuptools
 
-setup(
+setuptools.setup(
     name         = 'pendantdrop',
-    version      = 'devel',
+    version      = '0.1',
     url          = "https://github.com/sciunto-org/pendantdrop",
     author       = "Francois Boulogne and other contributors",
     license      = "LGPLv3 or BSD",
     author_email = "devel@sciunto.org",
     description  = "",
-    packages     = ['drop'],
+    packages     = setuptools.find_packages(exclude=['doc', 'benchmarks']),
     install_requires = [],
-    extra_requires = {}
 )
