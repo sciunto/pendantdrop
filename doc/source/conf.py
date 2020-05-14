@@ -10,9 +10,11 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
+import os
+import sys
 # sys.path.insert(0, os.path.abspath('.'))
+curpath = os.path.dirname(__file__)
+sys.path.append(os.path.join(curpath, '..', 'ext'))
 
 
 # -- Project information -----------------------------------------------------
@@ -32,6 +34,7 @@ extensions = [
         'autoapi.extension',
         'sphinx.ext.mathjax',
         'numpydoc',
+        'doi_role',
 ]
 
 autoapi_dirs = ['../../drop']

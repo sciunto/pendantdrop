@@ -29,7 +29,12 @@ def young_laplace_diff_equation(variables, space, bond_number):
 
     References
     ----------
-    [1] https://doi.org/10.1006/jcis.1997.5214
+
+    .. [1] Del Rıo, O. I., and A. W. Neumann. "Axisymmetric drop shape analysis:
+           computational methods for the measurement of interfacial properties
+           from the shape and dimensions of pendant and sessile drops."
+           Journal of colloid and interface science 196.2 (1997): 136-147.
+           :DOI:`10.1006/jcis.1997.5214`
     """
     phi, r, z = variables
 

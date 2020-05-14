@@ -8,6 +8,7 @@ install:
 script:
   - pytest drop
   - pytest integration_tests
+  - cd doc; make html
 
 after_success:
   - pip install coveralls
