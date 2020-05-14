@@ -19,8 +19,8 @@ from drop.optimize.deviation import orthogonal_RMS, radial_RMS
 
 
 def main():
-    # image_path = 'uEye_Image_002767.png'
-    # zoom = ((814, 1020), (1920, 1772))
+    # image_path = os.path.join('data', 'uEye_Image_002767.png')
+    # zoom = ((714, 1920), (920, 1830))
     image_path = os.path.join('data', 'uEye_Image_000827.png')
     zoom = ([100, 1312], [400, 1900])
     calib = 0.00124 / 400  # mm / px
