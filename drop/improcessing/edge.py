@@ -11,7 +11,8 @@ __all__ = ['detect_edges',
            'guess_angle',
            ]
 
-def detect_edges(image, method='contour', **kwarg):
+
+def detect_edges(image, method='contour', **kwargs):
     """
     Detect the edge of the drop on the image.
 
@@ -21,8 +22,8 @@ def detect_edges(image, method='contour', **kwarg):
         Grayscale image.
     method : string, optional
         Method for detecting contours. Either 'contour' or 'canny'.
-    kwarg: dict
-        Optional arguments passed to canny filter.
+    kwargs : dict, optional
+        Optional arguments passed to filters.
 
     Returns
     -------
@@ -36,18 +37,24 @@ def detect_edges(image, method='contour', **kwarg):
     a skeletonization with `skimage.morphology.skeletonize`.
     """
     if method.lower() == 'contour':
+        # By default:
         # Use the mean grayscale value of the image to get the contour.
-        level = image.mean()
-        contours = measure.find_contours(image, level)
+        contour_kwargs = {'level': image.mean()}
+        contour_kwargs.update(**kwargs)
+
+        contours = measure.find_contours(image, **contour_kwargs)
         Z_edges, R_edges = np.column_stack(contours[0])
+
         # Make a binary image
         edges = np.full(image.shape, False, dtype=bool)
         edges[Z_edges.astype(np.int), R_edges.astype(np.int)] = True
+
     elif method.lower() == 'canny':
-        edges = canny(image, **kwarg)
+        edges = canny(image, **kwargs)
         edges = skeletonize(edges)
         Z_edges = np.where(edges==True)[0]
         R_edges = np.where(edges==True)[1]
+
     else:
         raise ValueError('Wrong method value')
 
