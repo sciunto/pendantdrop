@@ -4,6 +4,7 @@ import numpy as np
 from skimage.transform import hough_circle
 from skimage.feature import peak_local_max, canny
 from skimage import measure
+from skimage.morphology import skeletonize
 
 __all__ = ['detect_edges',
            'fit_circle_tip',
@@ -27,6 +28,12 @@ def detect_edges(image, method='contour', **kwarg):
     -------
     results : tuple
         (edges, R_edges, Z_edges)
+
+    Notes
+    -----
+    `contour` method calls `skimage.measure.find_countours`.
+    `canny` method calls `skimage.feature.canny` followed by
+    a skeletonization with `skimage.morphology.skeletonize`.
     """
     if method.lower() == 'contour':
         # Use the mean grayscale value of the image to get the contour.
@@ -38,6 +45,7 @@ def detect_edges(image, method='contour', **kwarg):
         edges[Z_edges.astype(np.int), R_edges.astype(np.int)] = True
     elif method.lower() == 'canny':
         edges = canny(image, **kwarg)
+        edges = skeletonize(edges)
         Z_edges = np.where(edges==True)[0]
         R_edges = np.where(edges==True)[1]
     else:
