@@ -5,6 +5,7 @@ from scipy import constants
 from .theory import rotate_lines, theoretical_contour
 from .deviation import radial_RMS, orthogonal_RMS
 
+
 def _drop_theo_points_outside_detection(R, Z, RZ_edges):
     """
     Remove theoretical points outside the range of detected ones.
@@ -19,8 +20,8 @@ def _drop_theo_points_outside_detection(R, Z, RZ_edges):
     return R, Z
 
 
-def young_laplace(surface_tension, angle, center_R, center_Z, radius, RZ_edges,
-                  calib, *, rho=1000, gravity=None, num_points=1e3):
+def young_laplace(surface_tension, angle, center_R, center_Z, radius, density,
+                  calib, *, RZ_edges=None, gravity=None, num_points=1e3):
     """
     Returns the Young Laplace solution resized and oriented to the image.
 
@@ -29,21 +30,23 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, RZ_edges,
     surface_tension : scalar
         Surface tension
     angle : scalar
-
+        Tilting angle.
     center_R : scalar
-
+        Osculating circle center R-coordinate.
     center_Z : scalar
-
+        Osculating circle center Z-coordinate.
     radius : scalar
-
-    RZ_edges : tuple of array
-        (Radial, Vertical) coordinates of the edge.
+        Osculating circle radius.
+    density : scalar
+        Fluid density.
     calib : scalar
         Calibration in mm per px.
-    rho : scalar, optional
-        Fluid density.
+    RZ_edges : tuple of array, optional
+        (Radial, Vertical) coordinates of the edge.
+        Used to crop the profile to the experimental profile.
+        If None, the solution is not cropped.
     gravity : scalar, optional
-        Gravitational acceleration. If None, scipy.constants is used.
+        Gravitational acceleration. If None, `scipy.constants.g` is used.
     num_points : scalar, optional
         Number of points used in `theoretical_contour`
 
@@ -55,14 +58,14 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, RZ_edges,
     if gravity is None:
         gravity = constants.g
 
-    rho_g = rho * gravity
+    rho_g = density * gravity
     capillary_length = np.sqrt(surface_tension / rho_g)
     r0 = radius * calib
     bond_number = (r0 / capillary_length)**2
 
     # For the theoretical contour, the position (0, 0) corresponds to
     # the tip of the drop.
-    R, Z = theoretical_contour(bond_number, calib, num_points=num_points)
+    R, Z = theoretical_contour(bond_number, num_points=num_points)
 
     # Rescale
     R = R * r0
@@ -85,11 +88,12 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, RZ_edges,
     R = R / calib + center_R
     Z = Z / calib + (center_Z - radius)
 
-    R, Z = _drop_theo_points_outside_detection(R, Z, RZ_edges)
+    if RZ_edges:
+        R, Z = _drop_theo_points_outside_detection(R, Z, RZ_edges)
     return R, Z
 
 
-def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ_edges, calib, *, RMS=None):
+def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ_edges, density, calib, *, RMS=None):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
 
@@ -117,7 +121,7 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ
     -------
     RMS
     """
-    RZ = young_laplace(*variables, angle, center_R, center_Z, radius, RZ_edges, calib)
+    RZ = young_laplace(*variables, angle, center_R, center_Z, radius, density, calib, RZ_edges=RZ_edges)
 
     if RMS is None:
         RMS = radial_RMS
@@ -125,7 +129,7 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ
     return RMS(RZ, RZ_edges)
 
 
-def deviation_edge_model_full(variables, RZ_edges, calib, *, RMS=None):
+def deviation_edge_model_full(variables, RZ_edges, density, calib, *, RMS=None):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
 
@@ -145,7 +149,7 @@ def deviation_edge_model_full(variables, RZ_edges, calib, *, RMS=None):
     -------
     RMS
     """
-    RZ = young_laplace(*variables, RZ_edges, calib)
+    RZ = young_laplace(*variables, density, calib, RZ_edges=RZ_edges)
 
     if RMS is None:
         RMS = radial_RMS

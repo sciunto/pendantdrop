@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from scipy.integrate import odeint
+from scipy.integrate import solve_ivp
 from drop.utils import rotate
 
 
-def young_laplace_diff_equation(variables, space, bond_number):
+def young_laplace_diff_equation(space, variables, bond_number):
     """
     Return the derivatives corresponding to the Young-Laplace equation.
 
@@ -49,7 +49,7 @@ def young_laplace_diff_equation(variables, space, bond_number):
     return phi_prime, r_prime, z_prime
 
 
-def theoretical_contour(bond_number, calib, num_points=1e3):
+def theoretical_contour(bond_number, num_points=1e3, s_max=10):
     """
     Compute a theoretical contour from the Young-Laplace differential equation.
 
@@ -58,11 +58,11 @@ def theoretical_contour(bond_number, calib, num_points=1e3):
     ----------
     bond_number : scalar
         Bond number.
-    calib : scalar
-        Calibration in mm per px.
     num_points : scalar, optional
         Number of points used to compute the profile. These points are
-        evenly spaces from s=0 to s=10.
+        evenly spaces from s=0 to s=s_max.
+    s_max : scalar, optional
+        Maximum value for the curvilinear coordinate.
 
     Returns
     -------
@@ -72,19 +72,35 @@ def theoretical_contour(bond_number, calib, num_points=1e3):
     Notes
     -----
     The profile is non-dimensionalized by the tip radius.
+    The resolution is achieved with `scipy.integrate.solve_ivp`
 
     """
-    s_max = 10
-    # TODO s_max is an arbitrary value.
-    # Need to check if an increase is needed... or something.
     s_tilde = np.linspace(0, s_max, int(num_points))
-    solution = odeint(young_laplace_diff_equation,
-                      (0, 0, 0), s_tilde,
-                      args=(bond_number,))
-    # NOTE: phi = solution[:, 0]
 
-    R = solution[:, 1]
-    Z = solution[:, 2]
+    # Initial parameters
+    phi_prime_0 = 0
+    r_prime_0 = 0
+    z_prime_0 = 0
+    init = (phi_prime_0, r_prime_0, z_prime_0)
+
+    #from scipy.integrate import odeint
+    #solution = odeint(young_laplace_diff_equation,
+    #                  init, s_tilde,
+    #                  args=(bond_number,),
+    #                  tfirst=True)
+    # NOTE: phi = solution[:, 0]
+    # R = solution[:, 1]
+    # Z = solution[:, 2]
+
+    solution = solve_ivp(young_laplace_diff_equation,
+                         (0, s_max),
+                         init,
+                         t_eval=s_tilde,
+                         args=(bond_number,))
+
+    # Note: phi = solution.y[0]
+    R = solution.y[1]
+    Z = solution.y[2]
 
     return R, Z
 

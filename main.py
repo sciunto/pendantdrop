@@ -26,7 +26,8 @@ def main():
     calib = 0.00124 / 400  # mm / px
     # Arbitrary first guess for gamma
     initial_surface_tension = 0.04  # N/m
-    surface_tension_range = (0.02, 0.1)
+    surface_tension_range = (0.02, 0.1)  # N/m
+    fluid_density = 1000
 
     image1 = load_image(image_path, region=zoom)
 
@@ -47,7 +48,8 @@ def main():
     res = minimize(deviation_edge_model_simple,
                    ini_variables,
                    args=(theta, center_R, center_Z,
-                         radius, RZ_edges, calib),
+                         radius, RZ_edges, fluid_density,
+                         calib),
                    method='L-BFGS-B',
                    bounds=(surface_tension_range,),
                    options={'maxiter': 10,
@@ -68,7 +70,7 @@ def main():
 
     res = minimize(deviation_edge_model_full,
                    ini_variables2,
-                   args=(RZ_edges, calib),
+                   args=(RZ_edges, fluid_density, calib),
                    method='L-BFGS-B',
                    bounds=param_bounds,
                    options={'maxiter': 100,
@@ -80,8 +82,8 @@ def main():
     print(f'Step 2-RMS: {res.fun}')
 
     # Plot
-    RZ_model = young_laplace(*optimal_variables,
-                             RZ_edges, calib, num_points=1e4)
+    RZ_model = young_laplace(*optimal_variables, fluid_density,
+                             calib, RZ_edges=RZ_edges, num_points=1e4)
 
     oRMS = orthogonal_RMS(RZ_model, RZ_edges)
     rRMS = radial_RMS(RZ_model, RZ_edges)

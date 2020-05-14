@@ -23,7 +23,8 @@ def test_ransac():
 
     # Arbitrary first guess for gamma
     initial_surface_tension = 0.04  # N/m
-    surface_tension_limits = (0.02, 0.1) # N/m
+    surface_tension_limits = (0.02, 0.1)  # N/m
+    fluid_density = 1000
 
     image1 = load_image(image_path, region=zoom)
 
@@ -44,7 +45,8 @@ def test_ransac():
     res = minimize(deviation_edge_model_simple,
                    ini_variables,
                    args=(theta, center_R, center_Z,
-                         radius, RZ_edges, calib),
+                         radius, RZ_edges, fluid_density,
+                         calib),
                    method='L-BFGS-B',
                    bounds=(surface_tension_limits,),
                    options={'maxiter': 10,
@@ -64,7 +66,7 @@ def test_ransac():
 
     res = minimize(deviation_edge_model_full,
                    ini_variables2,
-                   args=(RZ_edges, calib),
+                   args=(RZ_edges, fluid_density, calib),
                    method='L-BFGS-B',
                    bounds=param_bounds,
                    options={'maxiter': 100,
@@ -84,6 +86,7 @@ def test_hough():
     # Arbitrary first guess for gamma
     initial_surface_tension = 0.04  # N/m
     surface_tension_limits = (0.02, 0.1) # N/m
+    fluid_density = 1000
 
     image1 = load_image(image_path, region=zoom)
 
@@ -104,7 +107,8 @@ def test_hough():
     res = minimize(deviation_edge_model_simple,
                    ini_variables,
                    args=(theta, center_R, center_Z,
-                         radius, RZ_edges, calib),
+                         radius, RZ_edges, fluid_density,
+                         calib),
                    method='L-BFGS-B',
                    bounds=(surface_tension_limits,),
                    options={'maxiter': 10,
@@ -124,7 +128,7 @@ def test_hough():
 
     res = minimize(deviation_edge_model_full,
                    ini_variables2,
-                   args=(RZ_edges, calib),
+                   args=(RZ_edges, fluid_density, calib),
                    method='L-BFGS-B',
                    bounds=param_bounds,
                    options={'maxiter': 100,
