@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+
+from skimage import measure, filters
 from skimage.transform import hough_circle
 from skimage.feature import peak_local_max, canny
-from skimage import measure
 from skimage.morphology import skeletonize
 
 __all__ = ['detect_edges',
@@ -20,8 +21,8 @@ def detect_edges(image, method='contour', **kwargs):
     ----------
     image : ndarray
         Grayscale image.
-    method : string, optional
-        Method for detecting contours. Either 'contour' or 'canny'.
+    method : {'contour', 'canny', 'sobel'} string, optional
+        Method for detecting contours.
     kwargs : dict, optional
         Optional arguments passed to filters.
 
@@ -32,9 +33,12 @@ def detect_edges(image, method='contour', **kwargs):
 
     Notes
     -----
-    `contour` method calls `skimage.measure.find_countours`.
-    `canny` method calls `skimage.feature.canny` followed by
-    a skeletonization with `skimage.morphology.skeletonize`.
+    * `contour` method calls `skimage.measure.find_countours`.
+    * `canny` method calls `skimage.feature.canny` followed by
+       a skeletonization with `skimage.morphology.skeletonize`.
+    * `sobel` method calls `skimage.filters.sobel`, followed
+      by a minimum threshold with
+      `skimage.filters.threshold_minimum`, and a skeletonization.
     """
     if method.lower() == 'contour':
         # By default:
@@ -51,6 +55,13 @@ def detect_edges(image, method='contour', **kwargs):
 
     elif method.lower() == 'canny':
         edges = canny(image, **kwargs)
+        edges = skeletonize(edges)
+        Z_edges = np.where(edges==True)[0]
+        R_edges = np.where(edges==True)[1]
+
+    elif method.lower() == 'sobel':
+        edges = filters.sobel(image)
+        edges = edges > filters.threshold_minimum(edges)
         edges = skeletonize(edges)
         Z_edges = np.where(edges==True)[0]
         R_edges = np.where(edges==True)[1]

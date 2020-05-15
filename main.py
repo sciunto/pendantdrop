@@ -31,7 +31,7 @@ def main():
 
     image1 = load_image(image_path, region=zoom)
 
-    edges, RZ_edges = detect_edges(image1, method='contour')
+    edges, RZ_edges = detect_edges(image1, method='sobel')
 
     # Guess parameters
     center_Z, center_R, radius = fit_circle_tip(edges.shape,
