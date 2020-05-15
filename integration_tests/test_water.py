@@ -16,7 +16,7 @@ from drop.optimize import deviation_edge_model_simple, deviation_edge_model_full
 from drop.optimize.deviation import orthogonal_RMS, radial_RMS
 
 
-def test_ransac():
+def test_contour_ransac():
     image_path = os.path.join('data', 'uEye_Image_000827.png')
     zoom = ([100, 1312], [400, 1900])
     calib = 0.00124 / 400  # mm / px
@@ -78,7 +78,7 @@ def test_ransac():
     np.testing.assert_almost_equal(Gamma, 0.07, decimal=3)
 
 
-def test_hough():
+def test_canny_hough():
     image_path = os.path.join('data', 'uEye_Image_000827.png')
     zoom = ([100, 1312], [400, 1900])
     calib = 0.00124 / 400  # mm / px
@@ -90,7 +90,7 @@ def test_hough():
 
     image1 = load_image(image_path, region=zoom)
 
-    edges, RZ_edges = detect_edges(image1, method='contour')
+    edges, RZ_edges = detect_edges(image1, method='canny')
 
     # Guess parameters
     center_Z, center_R, radius = fit_circle_tip(edges.shape,

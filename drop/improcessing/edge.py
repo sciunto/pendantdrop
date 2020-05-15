@@ -255,7 +255,13 @@ def guess_angle(edges, center_Z, center_R):
     c_center = np.array((center_R, center_Z))
 
     # assume orientation base at bottom of image
-    pixels_on_baseline = np.where(edges[-1, :] == True)
+
+    # Find non-empty bottom position
+    position = -1
+    while np.sum(edges[position, :]) < 2:
+        position -= 1
+
+    pixels_on_baseline = np.where(edges[position, :] == True)
     baseline_center = (np.mean((pixels_on_baseline[0],
                                 pixels_on_baseline[-1])),
                        edges.shape[0]-1)
