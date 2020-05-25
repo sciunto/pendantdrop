@@ -7,7 +7,7 @@ setuptools.setup(
     version      = '0.1',
     url          = "https://github.com/sciunto-org/pendantdrop",
     author       = "Francois Boulogne and other contributors",
-    license      = "LGPLv3 or BSD",
+    license      = "GPLv3",
     author_email = "devel@sciunto.org",
     description  = "",
     packages     = setuptools.find_packages(exclude=['doc', 'benchmarks']),
