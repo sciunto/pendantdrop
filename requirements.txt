@@ -4,5 +4,5 @@ matplotlib
 scikit-image
 pytest
 sphinx
-numpydoc
+numpydoc<1.0.0
 sphinx-autoapi
