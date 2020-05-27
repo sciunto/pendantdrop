@@ -56,4 +56,6 @@ def load_image(path, region=None):
     if region is not None:
         image = image[region[0][0]:region[0][1],
                       region[1][0]:region[1][1]]
+        if len(image.ravel()) == 0:
+            raise ValueError('Zero size image. Check that the region is appropriate.')
     return image
