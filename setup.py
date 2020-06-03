@@ -17,8 +17,9 @@ setuptools.setup(
     license      = "GPLv3",
     author_email = "devel@sciunto.org",
     description  = "Measure surface tension with pendant drops",
-    long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description = long_description,
+    long_description_content_type = 'text/markdown',
+    include_package_data = True,  # activate MANIFEST.in
     packages     = setuptools.find_packages(exclude=['doc', 'benchmarks']),
     install_requires = [],
 )
