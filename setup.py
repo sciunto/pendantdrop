@@ -11,7 +11,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setuptools.setup(
     name         = 'pendantdrop',
-    version      = '0.1',
+    version      = '0.1.0',
     url          = "https://github.com/sciunto-org/pendantdrop",
     author       = "Francois Boulogne and other contributors",
     license      = "GPLv3",
