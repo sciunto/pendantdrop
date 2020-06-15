@@ -196,7 +196,9 @@ def _fit_circle_tip_ransac(shape, R, Z, *, debug=False, **kwargs):
                   'b.', markersize=1, label='inliers')
         axes.plot(points[~inliers, 0], points[~inliers, 1],
                   'r.', markersize=1, label='outliers')
+        plt.title(f'radius: {r:.2f}, center: {cy:.2f}, {cx:.2f}')
         plt.legend()
+        plt.show()
 
     return cx, cy, r
 
