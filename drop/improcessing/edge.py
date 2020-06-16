@@ -33,13 +33,15 @@ def detect_edges(image, method='contour', **kwargs):
     Notes
     -----
     `contour` method calls `skimage.measure.find_countours`.
+    The default level is the average of the max and min intensity
+    values.
     `canny` method calls `skimage.feature.canny` followed by
     a skeletonization with `skimage.morphology.skeletonize`.
     """
     if method.lower() == 'contour':
         # By default:
         # Use the mean grayscale value of the image to get the contour.
-        contour_kwargs = {'level': image.mean()}
+        contour_kwargs = {'level': 0.5 * (image.max() - image.min())}
         contour_kwargs.update(**kwargs)
 
         contours = measure.find_contours(image, **contour_kwargs)
