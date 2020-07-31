@@ -19,9 +19,9 @@ from drop.optimize.deviation import orthogonal_RMS, radial_RMS
 
 
 def main():
-    # image_path = os.path.join('data', 'uEye_Image_002767.png')
+    # image_path = os.path.join('..', 'data', 'uEye_Image_002767.png')
     # zoom = ((714, 1920), (920, 1830))
-    image_path = os.path.join('data', 'uEye_Image_000827.png')
+    image_path = os.path.join('..', 'data', 'uEye_Image_000827.png')
     zoom = ([100, 1312], [400, 1900])
     calib = 0.00124 / 400  # mm / px
     # Arbitrary first guess for gamma
@@ -61,7 +61,7 @@ def main():
     # Step 2: consider all the parameters
     ini_variables2 = np.array((guessed_surface_tension,
                                theta, center_R, center_Z, radius,))
-    param_bounds = ((guessed_surface_tension-2e-3, guessed_surface_tension+2e-3),
+    param_bounds = ((guessed_surface_tension-1e-2, guessed_surface_tension+1e-2),
                     (theta*0.7, theta*1.3),
                     (center_R-5, center_R+5),
                     (center_Z-5, center_Z+5),
@@ -85,9 +85,9 @@ def main():
     RZ_model = young_laplace(*optimal_variables, fluid_density,
                              calib, RZ_edges=RZ_edges, num_points=1e4)
 
-    oRMS = orthogonal_RMS(RZ_model, RZ_edges)
+    #oRMS = orthogonal_RMS(RZ_model, RZ_edges)
     rRMS = radial_RMS(RZ_model, RZ_edges)
-    print(f'OrthoRMS: {oRMS}, RadialRMS {rRMS}')
+    #print(f'OrthoRMS: {oRMS}, RadialRMS {rRMS}')
 
     plt.figure()
     ax = plt.axes()
@@ -98,7 +98,7 @@ def main():
     plt.plot(*RZ_edges, '*g', markersize=1)
     plt.plot(*RZ_model, 'r-', markersize=2)
     plt.plot(center_R, center_Z, 'bo')
-    plt.title(f'Gamma = {optimal_variables[0]:.4} N/m')
+    plt.title(f'Gamma = {optimal_variables[0]:.4} N/m, RMS = {rRMS:.3}')
     plt.show()
 
 
