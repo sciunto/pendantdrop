@@ -6,6 +6,34 @@ from scipy.optimize import minimize
 from drop.utils import split_profile
 
 
+def _vertical_squared_distance(R, Z, R_edges, Z_edges):
+    """
+    Calculate the vertical squared distance for half profile.
+
+    Theoretical points are interpolated on experimental ones.
+
+    Parameters
+    ----------
+    R : array
+        Radial coordinates of the theoretical contour.
+    Z : array
+        Vertical coordinates of the theoretical contour.
+    R_edges : array
+        Radial coordinates of the edge.
+    Z_edges : array
+        Vertical coordinates of the edge.
+
+    Returns
+    -------
+    squared_distance
+
+    """
+    Z_theo_interpolator = interp1d(R, Z, kind='linear',
+                                   fill_value='extrapolate')
+    Z_theo_interpolated = Z_theo_interpolator(R_edges)
+    return (Z_theo_interpolated - Z_edges)**2
+
+
 def _radial_squared_distance(R, Z, R_edges, Z_edges):
     """
     Calculate the radial squared distance for half profile.
