@@ -279,7 +279,7 @@ def guess_angle(edges, center_Z, center_R):
     return theta
 
 
-#def guess_parameters(edges, RZ_edges, tip, center_Z, center_R):
+# def guess_parameters(edges, RZ_edges, tip, center_Z, center_R):
 #    """
 #    Guess values for the angle and the tip position.
 #
