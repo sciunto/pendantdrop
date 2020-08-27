@@ -25,7 +25,7 @@ def _base_diameter(edges):
         position -= 1
 
     pixels_on_baseline = np.where(edges[position, :] == True)
-    return pixels_on_baseline[-1] - pixels_on_baseline[0]
+    return pixels_on_baseline[0][-1] - pixels_on_baseline[0][0]
 
 
 def _drop_volume(edges):
