@@ -23,7 +23,7 @@ def main():
     # zoom = ((714, 1920), (920, 1830))
     image_path = os.path.join('..', 'data', 'uEye_Image_000827.png')
     zoom = ([100, 1312], [400, 1900])
-    calib = 0.00124 / 400  # mm / px
+    calib = 0.00124 / 400  # m / px
     # Arbitrary first guess for gamma
     initial_surface_tension = 0.04  # N/m
     surface_tension_range = (0.02, 0.1)  # N/m

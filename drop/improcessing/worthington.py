@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+from scipy import constants
 from skimage import measure
 from skimage.morphology import flood_fill
 
@@ -9,9 +10,32 @@ __all__ = ['worthington',
            ]
 
 
+def _base_diameter(edges):
+    """
+    Find the base diameter (in px)
+
+    Parameters
+    ----------
+    edges : boolean image
+        Image containing the edges to fit.
+    """
+    # assume baseline at the bottom
+    position = -1
+    while np.sum(edges[position, :]) < 2:
+        position -= 1
+
+    pixels_on_baseline = np.where(edges[position, :] == True)
+    return pixels_on_baseline[-1] - pixels_on_baseline[0]
+
+
 def _drop_volume(edges):
     """
     Compute the drop volume (in px3)
+
+    Parameters
+    ----------
+    edges : boolean image
+        Image containing the edges to fit.
     """
     labeled_edges = measure.label(edges)
 
@@ -56,10 +80,32 @@ def _drop_volume(edges):
     return volume_in_px3
 
 
-def worthington(edges, calib, surface_tension, fluid_density, gravity):
-    volume = _drop_volume(edges) * calib**3  # mm3
+def worthington(edges, calib, surface_tension, fluid_density, gravity=None):
+    """
+    Compute the worthington number.
 
-    needle_diameter = 1 # TODO
+    Parameters
+    ----------
+    edges : boolean image
+        Image containing the edges to fit.
+    calib : scalar
+        Calibration scale in m/px.
+    surface_tension : scalar
+        Surface tension in N/m.
+    fluid_density : scalar,
+        Fluid density in kg/m3.
+    gravity : scalar, optional
+        Gravitational acceleration. If None, `scipy.constants.g` is used.
+
+    Returns
+    -------
+    worthington : scalar
+    """
+    if gravity is None:
+        gravity = constants.g
+    volume = _drop_volume(edges) * calib**3
+
+    needle_diameter = _base_diameter(edges) * calib
 
     num = fluid_density * gravity * volume
     den = np.pi * surface_tension * needle_diameter
