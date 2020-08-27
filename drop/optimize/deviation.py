@@ -96,9 +96,9 @@ def radial_RMS(RZ_model, RZ_edges):
     return np.sqrt(chi_squared) / len(e_all)
 
 
-def _orthogonal_squared_distance(R, Z, R_edges, Z_edges):
+def _shortest_squared_distance(R, Z, R_edges, Z_edges):
     """
-    Calculate the orthogonal squared distance for half profile.
+    Calculate the shortest squared distance for half profile.
 
     Theoretical points are interpolated on experimental ones.
 
@@ -132,9 +132,9 @@ def _orthogonal_squared_distance(R, Z, R_edges, Z_edges):
     return np.array(all_dist)
 
 
-def orthogonal_RMS(RZ_model, RZ_edges):
+def shortest_RMS(RZ_model, RZ_edges):
     """
-    Calculate the orthogonal RMS distance.
+    Calculate the shortest RMS distance.
 
     Theoretical points are interpolated on experimental ones.
 
@@ -158,8 +158,8 @@ def orthogonal_RMS(RZ_model, RZ_edges):
     R_edges_left, Z_edges_left, R_edges_right, Z_edges_right = split_profile(R_edges, Z_edges)
 
     # Error on both sides.
-    e_left = _orthogonal_squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
-    e_right = _orthogonal_squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
+    e_left = _shortest_squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
+    e_right = _shortest_squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
 
     # Merge errrors
     e_all = np.concatenate((e_left, e_right))
