@@ -16,6 +16,7 @@ from drop.optimize import (young_laplace,
 
 
 from drop.optimize.deviation import orthogonal_RMS, radial_RMS
+from drop.improcessing import worthington
 
 
 def main():
@@ -23,7 +24,7 @@ def main():
     # zoom = ((714, 1920), (920, 1830))
     image_path = os.path.join('..', 'data', 'uEye_Image_000827.png')
     zoom = ([100, 1312], [400, 1900])
-    calib = 0.00124 / 400  # mm / px
+    calib = 0.00124 / 400  # m / px
     # Arbitrary first guess for gamma
     initial_surface_tension = 0.04  # N/m
     surface_tension_range = (0.02, 0.1)  # N/m
@@ -89,6 +90,10 @@ def main():
     rRMS = radial_RMS(RZ_model, RZ_edges)
     #print(f'OrthoRMS: {oRMS}, RadialRMS {rRMS}')
 
+
+    surface_tension = optimal_variables[0]
+    wo_number = worthington(edges, calib, surface_tension, fluid_density)
+
     plt.figure()
     ax = plt.axes()
     plt.imshow(image1, cmap='gray')
@@ -98,7 +103,7 @@ def main():
     plt.plot(*RZ_edges, '*g', markersize=1)
     plt.plot(*RZ_model, 'r-', markersize=2)
     plt.plot(center_R, center_Z, 'bo')
-    plt.title(f'Gamma = {optimal_variables[0]:.4} N/m, RMS = {rRMS:.3}')
+    plt.title(f'Wo = {wo_number:.2}, Gamma = {surface_tension:.4} N/m, RMS = {rRMS:.3}')
     plt.show()
 
 

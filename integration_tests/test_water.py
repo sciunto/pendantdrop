@@ -19,7 +19,7 @@ from drop.optimize.deviation import orthogonal_RMS, radial_RMS
 def test_contour_ransac():
     image_path = os.path.join('data', 'uEye_Image_000827.png')
     zoom = ([100, 1312], [400, 1900])
-    calib = 0.00124 / 400  # mm / px
+    calib = 0.00124 / 400  # m / px
 
     # Arbitrary first guess for gamma
     initial_surface_tension = 0.04  # N/m
@@ -81,7 +81,7 @@ def test_contour_ransac():
 def test_canny_hough():
     image_path = os.path.join('data', 'uEye_Image_000827.png')
     zoom = ([100, 1312], [400, 1900])
-    calib = 0.00124 / 400  # mm / px
+    calib = 0.00124 / 400  # m / px
 
     # Arbitrary first guess for gamma
     initial_surface_tension = 0.04  # N/m

@@ -40,7 +40,7 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, density,
     density : scalar
         Fluid density.
     calib : scalar
-        Calibration in mm per px.
+        Calibration in m per px.
     RZ_edges : tuple of array, optional
         (Radial, Vertical) coordinates of the edge.
         Used to crop the profile to the experimental profile.
@@ -112,7 +112,7 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ
     RZ_edges : tuple of array
         (Radial, Vertical) coordinates of the edge.
     calib : scalar
-        Calibration in mm per px.
+        Calibration in m per px.
     RMS : callable
         function(R_theo, Z_theo, RZ_edges) to compute the RMS.
         If None, radial_RMS is used.
@@ -140,7 +140,7 @@ def deviation_edge_model_full(variables, RZ_edges, density, calib, *, RMS=None):
     RZ_edges : tuple of array
         (Radial, Vertical) coordinates of the edge.
     calib : scalar
-        Calibration in mm per px.
+        Calibration in m per px.
     RMS : callable
         function(R_theo, Z_theo, RZ_edges) to compute the RMS.
         If None, radial_RMS is used.
