@@ -40,7 +40,8 @@ def _drop_volume(edges):
     labeled_edges = measure.label(edges)
 
     # Fill the edges
-
+    # See https://github.com/scikit-image/scikit-image/issues/4944
+    # filled_area is not reliable, so we fill the shape prevently
     prop = measure.regionprops_table(labeled_edges, properties=('centroid', ))
     seed = (int(prop['centroid-0']), int(prop['centroid-1']))
     filled = flood_fill(edges, seed, edges.max(), connectivity=1)
