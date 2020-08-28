@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import math
 
 from scipy.integrate import solve_ivp
 from drop.utils import rotate
@@ -38,13 +39,15 @@ def young_laplace_diff_equation(space, variables, bond_number):
     """
     phi, r, z = variables
 
+    sin_phi = math.sin(phi)
+
     if r != 0:
-        phi_prime = 2 - bond_number * z - np.sin(phi) / r
+        phi_prime = 2 - bond_number * z - sin_phi / r
     else:
         phi_prime = 1
 
-    r_prime = np.cos(phi)
-    z_prime = np.sin(phi)
+    r_prime = math.cos(phi)
+    z_prime = sin_phi
 
     return phi_prime, r_prime, z_prime
 
