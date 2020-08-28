@@ -17,6 +17,7 @@ from drop.optimize import (young_laplace,
 
 from drop.optimize.deviation import shortest_RMS, radial_RMS
 from drop.improcessing import worthington
+from drop.utils import print_parameters
 
 
 def main():
@@ -45,6 +46,13 @@ def main():
 
     # Step 1: consider only the surface tension
     # as it is not guessed so far
+    print_parameters('Initial parameters',
+                     initial_surface_tension,
+                     theta,
+                     center_R,
+                     center_Z,
+                     radius)
+
     ini_variables = np.array((initial_surface_tension))
     res = minimize(deviation_edge_model_simple,
                    ini_variables,
@@ -55,10 +63,18 @@ def main():
                    bounds=(surface_tension_range,),
                    options={'maxiter': 10,
                             'ftol': 1e-2,
-                            'disp': True})
+                            'disp': False})
     guessed_surface_tension = res.x[0]
-    print(f'Step 1-RMS: {res.fun}')
 
+    print_parameters('Step 1',
+                     guessed_surface_tension,
+                     theta,
+                     center_R,
+                     center_Z,
+                     radius,
+                     RMS=res.fun)
+
+    ini_variables = np.array((initial_surface_tension))
     # Step 2: consider all the parameters
     ini_variables2 = np.array((guessed_surface_tension,
                                theta, center_R, center_Z, radius,))
@@ -76,11 +92,17 @@ def main():
                    bounds=param_bounds,
                    options={'maxiter': 100,
                             'ftol': 1e-6,
-                            'disp': True})
+                            'disp': False})
     optimal_variables = res.x
-    print(f'Step 2-ini params BFGS: {ini_variables2}')
-    print(f'Step 2-opt params BFGS: {optimal_variables}')
-    print(f'Step 2-RMS: {res.fun}')
+    surface_tension = optimal_variables[0]
+
+    print_parameters('Step 2',
+                     surface_tension,
+                     optimal_variables[1],
+                     optimal_variables[2],
+                     optimal_variables[3],
+                     optimal_variables[4],
+                     RMS=res.fun)
 
     # Plot
     RZ_model = young_laplace(*optimal_variables, fluid_density,
@@ -91,7 +113,6 @@ def main():
     #print(f'OrthoRMS: {oRMS}, RadialRMS {rRMS}')
 
 
-    surface_tension = optimal_variables[0]
     wo_number = worthington(edges, calib, surface_tension, fluid_density)
 
     plt.figure()
