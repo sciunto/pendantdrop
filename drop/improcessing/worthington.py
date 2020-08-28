@@ -36,12 +36,17 @@ def _drop_volume(edges):
     ----------
     edges : boolean image
         Image containing the edges to fit.
+
+    Returns
+    -------
+    volume : scalar
     """
     labeled_edges = measure.label(edges)
-
+    
     # Fill the edges
     # See https://github.com/scikit-image/scikit-image/issues/4944
     # filled_area is not reliable, so we fill the shape prevently
+    # Assume that the centroid is part of the shape.
     prop = measure.regionprops_table(labeled_edges, properties=('centroid', ))
     seed = (int(prop['centroid-0']), int(prop['centroid-1']))
     filled = flood_fill(edges, seed, edges.max(), connectivity=1)
@@ -51,10 +56,10 @@ def _drop_volume(edges):
 
     labeled_edges = measure.label(filled)
     table = measure.regionprops_table(labeled_edges,
-                                      properties=('filled_area', 'centroid'))
+                                      properties=('area', 'centroid'))
     df = pd.DataFrame(table)
-    df = df[df.filled_area == df.filled_area.max()]
-    area = df.filled_area.values
+    df = df[df.area == df.area.max()]
+    area = df.area.values
 
     # Split right and left
     edges_left = filled[:, :int(df['centroid-1'][0])]
@@ -76,6 +81,7 @@ def _drop_volume(edges):
 
     distance_right = df['centroid-1'].values
 
+    # Compute the volume
     average_distance = (distance_right[0] + distance_left[0]) / 2.
     volume_in_px3 = 2 * np.pi * average_distance * area[0] / 2.
     return volume_in_px3
@@ -101,6 +107,14 @@ def worthington(edges, calib, surface_tension, fluid_density, gravity=None):
     Returns
     -------
     worthington : scalar
+
+    References
+    ----------
+
+    .. [1] Berry, Neeson, Dagastine, Chan, Tabor "Measurement of surface and 
+           interfacial tension using pendant drop tensiometry"
+           Journal of Colloid and Interface Science, 2015, 454, 226-237
+           :DOI:`10.1016/j.jcis.2015.05.012`
     """
     if gravity is None:
         gravity = constants.g

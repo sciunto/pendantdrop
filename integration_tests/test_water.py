@@ -7,13 +7,9 @@ import numpy as np
 
 from scipy.optimize import minimize
 
-
 from drop.io import load_image
 from drop.improcessing import fit_circle_tip, detect_edges, guess_angle
 from drop.optimize import deviation_edge_model_simple, deviation_edge_model_full
-
-
-from drop.optimize.deviation import orthogonal_RMS, radial_RMS
 
 
 def test_contour_ransac():
@@ -85,7 +81,7 @@ def test_canny_hough():
 
     # Arbitrary first guess for gamma
     initial_surface_tension = 0.04  # N/m
-    surface_tension_limits = (0.02, 0.1) # N/m
+    surface_tension_limits = (0.02, 0.1)  # N/m
     fluid_density = 1000
 
     image1 = load_image(image_path, region=zoom)

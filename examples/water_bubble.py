@@ -15,7 +15,7 @@ from drop.optimize import (young_laplace,
                                deviation_edge_model_full)
 
 
-from drop.optimize.deviation import orthogonal_RMS, radial_RMS
+from drop.optimize.deviation import shortest_RMS, radial_RMS
 from drop.improcessing import worthington
 
 
@@ -86,7 +86,7 @@ def main():
     RZ_model = young_laplace(*optimal_variables, fluid_density,
                              calib, RZ_edges=RZ_edges, num_points=1e4)
 
-    #oRMS = orthogonal_RMS(RZ_model, RZ_edges)
+    #oRMS = shortest_RMS(RZ_model, RZ_edges)
     rRMS = radial_RMS(RZ_model, RZ_edges)
     #print(f'OrthoRMS: {oRMS}, RadialRMS {rRMS}')
 
