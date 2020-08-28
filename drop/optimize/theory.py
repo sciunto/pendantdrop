@@ -12,10 +12,10 @@ def young_laplace_diff_equation(space, variables, bond_number):
 
     Parameters
     ----------
-    variables : tuple
-        (phi, r_tilde, z_tilde)
     space : 1D-array
         Space variable.
+    variables : tuple
+        (phi, r_tilde, z_tilde)
     bond_number : scalar
         Bond number.
 
