@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import math
 
 
 def print_parameters(title, surface_tension, tilt_angle,
@@ -61,7 +62,7 @@ def rotate(x, y, cx, cy, angle):
         (x_new, y_new)
     """
     vector = np.array((x - cx, y - cy))
-    c, s = np.cos(angle), np.sin(angle)
+    c, s = math.cos(angle), math.sin(angle)
     rotation_matrix = np.matrix([[c, s],
                                  [-s, c]])
     m = np.dot(vector.T, rotation_matrix)
