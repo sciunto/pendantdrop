@@ -3,7 +3,13 @@ import numpy as np
 import math
 
 from scipy.integrate import solve_ivp
+from joblib import Memory
 from drop.utils import rotate
+from appdirs import AppDirs
+
+dirs = AppDirs('pendantdrop')
+cachedir = dirs.user_cache_dir
+memory = Memory(cachedir, verbose=0)
 
 
 def young_laplace_diff_equation(space, variables, bond_number):
@@ -51,7 +57,7 @@ def young_laplace_diff_equation(space, variables, bond_number):
 
     return phi_prime, r_prime, z_prime
 
-
+@memory.cache
 def theoretical_contour(bond_number, num_points=1e3, s_max=10):
     """
     Compute a theoretical contour from the Young-Laplace differential equation.
