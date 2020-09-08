@@ -3,6 +3,8 @@ scipy>=1.4.0
 pandas
 matplotlib
 scikit-image
+joblib
+appdirs
 pytest
 sphinx
 numpydoc>=1.1.0
