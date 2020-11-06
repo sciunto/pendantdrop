@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import numpy as np
 from skimage import io
 
 __all__ = ['load_image',]
