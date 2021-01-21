@@ -89,10 +89,8 @@ def test_orthogonal_squared_distance_ShiftedLines():
     vertical = deviation._vertical_squared_distance(X1, Y1, X2, Y2)
     vertical = np.sqrt(vertical[0])
 
-    orthogonal = radial * np.sin(np.arctan(vertical / radial))
-    expected = np.full(10, orthogonal**2)
+    orthogonal = np.sqrt(radial**2 + vertical**2) / 2.
+    expected = np.full(10, orthogonal**2)[1:-1]
 
     res = deviation._orthogonal_squared_distance(X1, Y1, X2, Y2)
-    print(res)
-    print(expected)
     assert_almost_equal(res, expected)

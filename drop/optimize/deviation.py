@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from scipy.interpolate import interp1d
-from scipy.optimize import minimize
+from scipy.optimize import minimize, root_scalar
 from drop.utils import split_profile
 
 
@@ -181,13 +181,11 @@ def _orthogonal_squared_distance(R, Z, R_edges, Z_edges):
     Z_edges : array
         Vertical coordinates of the edge.
     """
-    # Compute the tangential_slope
+    # Slope
     # ( R(i+1) - R(i-1) ) / (Z(i+1) - Z(i-1))
     num = np.diff(R_edges[:-1]) + np.diff(R_edges[1:])
     denom = np.diff(Z_edges[:-1]) + np.diff(Z_edges[1:])
-    tangential_slope = num / denom
-    # and the normal slope
-    orthogonal_slope = -1 / tangential_slope
+    slope = num / denom
 
     R_theo_interpolator = interp1d(Z, R, kind='linear',
                                    fill_value='extrapolate')
@@ -195,19 +193,23 @@ def _orthogonal_squared_distance(R, Z, R_edges, Z_edges):
     def f_to_minimize(z, R_edge, Z_edge, o_slope):
         return R_theo_interpolator(z) + o_slope * (z - Z_edge) - R_edge
 
-    def get_distance2(el):
+    def get_distance(el, max_distance):
         r, z, o_slope = el
-        res = minimize(f_to_minimize, z, args=(r, z, o_slope), method=None)
-
-        Z_theo = res.x[0]
-        print(Z_theo)
+        res = root_scalar(f_to_minimize,
+                          bracket=(-max_distance, max_distance),
+                          method='brentq',
+                          args=(r, z, o_slope))
+        Z_theo = res.root
         R_theo = R_theo_interpolator(Z_theo)
-        dist = (Z_theo - z)**2 + (R_theo - r)**2
-        return dist
+        dist2 = (Z_theo - z)**2 + (R_theo - r)**2
+        return dist2
 
+
+	# TODO provide a guess for max_distance
     # Do not consider first and last elements of the data
     # because we don't have the slope.
-    all_dist = [get_distance2(el)  for el in zip(R_edges[1:-1], Z_edges[1:-1], orthogonal_slope)]
+    max_distance = 1000
+    all_dist = [get_distance(el, max_distance)  for el in zip(R_edges[1:-1], Z_edges[1:-1], slope)]
     return np.array(all_dist)
 
 
