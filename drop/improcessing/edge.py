@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from skimage.transform import hough_circle
 from skimage.feature import peak_local_max, canny
 from skimage import measure
 from skimage.morphology import skeletonize
@@ -63,86 +62,6 @@ def detect_edges(image, method='contour', **kwargs):
         raise ValueError('Wrong method value')
 
     return edges, (R_edges, Z_edges)
-
-
-def _find_circle(edges, hough_radii):
-    """
-    Find the best circle to model points marked as `True`.
-
-    Parameters
-    ----------
-    edges : boolean image
-        Image containing the edges to fit.
-    hough_radii : tuple
-        Radii considered for the Hough transform
-
-    Returns
-    -------
-    parameters : tuple
-        (center_Z, center_R, radius, tip_position)
-
-    """
-    hough_res = hough_circle(edges, hough_radii, full_output=True)
-
-    centers = []
-    accums = []
-    radii = []
-
-    for radius, h in zip(hough_radii, hough_res):
-        # For each radius, extract two circles
-        peaks = peak_local_max(h, min_distance=100, num_peaks=2)
-        centers.extend(peaks)
-        accums.extend(h[peaks[:, 0], peaks[:, 1]])
-        radii.extend([radius, radius])
-
-    idx = np.argsort(accums)[::-1][0]
-
-    center_Z, center_R = centers[idx]
-    radius = radii[idx]
-
-    center_Z = center_Z - hough_radii[-1]
-    center_R = center_R - hough_radii[-1]
-    tip = [center_R, center_Z - radius]
-
-    return center_Z, center_R, radius, tip
-
-
-def _fit_circle_tip_hough_transform(shape, R, Z):
-    """
-    Fit a circle with a Hough transform on the points between
-    the '45th parallel' and the tip.
-
-    Parameters
-    ----------
-    shape : tuple
-        Image shape.
-    R : array
-        Radial coordinates.
-    Z : array
-        Vertical coordinates.
-
-    Returns
-    -------
-    parameters : tuple
-        (center_Z, center_R, radius, tip_position)
-    """
-    # Assume upward bubble orientation
-    # Mask to select the 45th parallel
-    mask = Z < Z.min() + 0.5 * (Z[R.argmin()] - Z.min())
-    edges = np.full(shape, False, dtype=bool)
-    edges[Z[mask].astype(np.int), R[mask].astype(np.int)] = True
-
-    # Guess the maximum radius
-    max_possible_radius = .5 * (R.max() - R.min())
-    min_possible_radius = int(0.8 * max_possible_radius)
-    # Coarse grain
-    step = 5
-    hough_radii = np.arange(min_possible_radius, max_possible_radius, step)
-    _, _, radius, _ = _find_circle(edges, hough_radii)
-    # Fine grain
-    hough_radii = np.arange(radius - 2 * step, radius + 2 * step, 1)
-    center_Z, center_R, radius, _ = _find_circle(edges, hough_radii)
-    return center_Z, center_R, radius
 
 
 def _fit_circle_tip_ransac(shape, R, Z, *, linearized=False, debug=False, **kwargs):
@@ -228,7 +147,7 @@ def fit_circle_tip(shape, RZ_edges, *, method='ransac', debug=False, **kwargs):
     RZ_edges : tuple of array
         (Radial, Vertical) coordinates of the edge.
     method : str, optional
-        Name of the method: `ransac`, `ransac-lin` or `hough`.
+        Name of the method: `ransac` or `ransac-lin`.
     debug : boolean, optional
         If `True`, activate plots to visualize the fit.
     kwargs : dict, optional
@@ -245,15 +164,12 @@ def fit_circle_tip(shape, RZ_edges, *, method='ransac', debug=False, **kwargs):
     a linear approximation in the residual. See
     https://scipy-cookbook.readthedocs.io/items/Least_Squares_Circle.html
     for details on the linearization.
-    `hough` applies the Hough transform to detect the circle.
     """
     R, Z = RZ_edges
     if method.lower() == 'ransac':
         return _fit_circle_tip_ransac(shape, R, Z, debug=debug, linearized=False, **kwargs)
     elif method.lower() == 'ransac-lin':
         return _fit_circle_tip_ransac(shape, R, Z, debug=debug, linearized=True, **kwargs)
-    elif method.lower() == 'hough':
-        return _fit_circle_tip_hough_transform(shape, R, Z)
     else:
         raise ValueError('Wrong parameter value for `method`.')
 
