@@ -93,7 +93,7 @@ def young_laplace(surface_tension, angle, center_R, center_Z, radius, density,
     return R, Z
 
 
-def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ_edges, density, calib, *, RMS=None):
+def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ_edges, density, calib, RMS):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
 
@@ -122,14 +122,10 @@ def deviation_edge_model_simple(variables, angle, center_R, center_Z, radius, RZ
     RMS
     """
     RZ = young_laplace(*variables, angle, center_R, center_Z, radius, density, calib, RZ_edges=RZ_edges)
-
-    if RMS is None:
-        RMS = radial_RMS
-
     return RMS(RZ, RZ_edges)
 
 
-def deviation_edge_model_full(variables, RZ_edges, density, calib, *, RMS=None):
+def deviation_edge_model_full(variables, RZ_edges, density, calib, RMS):
     """
     Return the RMS for a profile given by set of parameters to the experimental profile.
 
@@ -150,8 +146,4 @@ def deviation_edge_model_full(variables, RZ_edges, density, calib, *, RMS=None):
     RMS
     """
     RZ = young_laplace(*variables, density, calib, RZ_edges=RZ_edges)
-
-    if RMS is None:
-        RMS = radial_RMS
-
     return RMS(RZ, RZ_edges)

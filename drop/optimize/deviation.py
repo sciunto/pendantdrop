@@ -185,20 +185,29 @@ def _orthogonal_squared_distance(R, Z, R_edges, Z_edges):
     # ( R(i+1) - R(i-1) ) / (Z(i+1) - Z(i-1))
     num = np.diff(R_edges[:-1]) + np.diff(R_edges[1:])
     denom = np.diff(Z_edges[:-1]) + np.diff(Z_edges[1:])
-    slope = num / denom
 
     R_theo_interpolator = interp1d(Z, R, kind='linear',
                                    fill_value='extrapolate')
 
-    def f_to_minimize(z, R_edge, Z_edge, o_slope):
-        return R_theo_interpolator(z) + o_slope * (z - Z_edge) - R_edge
+    def f_to_minimize(z, R_edge, Z_edge, slope):
+        return R_theo_interpolator(z) + slope * (z - Z_edge) - R_edge
 
     def get_distance(el, max_distance):
-        r, z, o_slope = el
-        res = root_scalar(f_to_minimize,
-                          bracket=(-max_distance, max_distance),
-                          method='brentq',
-                          args=(r, z, o_slope))
+        r, z, num, denom = el
+        if denom == 0:
+            # Return zero distance, we cant evaluate
+            return 0
+        slope = num / denom
+        print('test')
+        try:
+            res = root_scalar(f_to_minimize,
+                          bracket=(0, 30000),
+                          method='bisect',
+                          args=(r, z, slope))
+        except ValueError:
+            print(r, z, num, denom)
+            print('oops')
+            return 0
         Z_theo = res.root
         R_theo = R_theo_interpolator(Z_theo)
         dist2 = (Z_theo - z)**2 + (R_theo - r)**2
@@ -208,8 +217,8 @@ def _orthogonal_squared_distance(R, Z, R_edges, Z_edges):
 	# TODO provide a guess for max_distance
     # Do not consider first and last elements of the data
     # because we don't have the slope.
-    max_distance = 1000
-    all_dist = [get_distance(el, max_distance)  for el in zip(R_edges[1:-1], Z_edges[1:-1], slope)]
+    max_distance = 2000
+    all_dist = [get_distance(el, max_distance)  for el in zip(R_edges[1:-1], Z_edges[1:-1], num, denom)]
     return np.array(all_dist)
 
 
@@ -239,6 +248,44 @@ def orthogonal_RMS(RZ_model, RZ_edges):
     # Error on both sides.
     e_left = _orthogonal_squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
     e_right = _orthogonal_squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
+
+    # Merge errrors
+    e_all = np.concatenate((e_left, e_right))
+    chi_squared = np.sum(e_all)
+    return np.sqrt(chi_squared) / len(e_all)
+
+
+def o_RMS(RZ_model, RZ_edges):
+    """
+    Calculate the orthogonal RMS distance.
+
+    Parameters
+    ----------
+    RZ_model : tuple of array
+        (Radial Vertical) coordinates of the theoretical contour.
+    RZ_edges : tuple of array
+        (Radial, Vertical) coordinates of the edge.
+
+    Returns
+    -------
+    RMS
+
+    """
+    R, Z = RZ_model
+    R_edges, Z_edges = RZ_edges
+
+    # Split profiles to compute errors on each side
+    R_left, Z_left, R_right, Z_right = split_profile(R, Z)
+    R_edges_left, Z_edges_left, R_edges_right, Z_edges_right = split_profile(R_edges, Z_edges)
+
+    # Error on both sides.
+    re_left = _radial_squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
+    re_right = _radial_squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
+    oe_left = _vertical_squared_distance(R_left, Z_left, R_edges_left, Z_edges_left)
+    oe_right = _vertical_squared_distance(R_right, Z_right, R_edges_right, Z_edges_right)
+
+    e_left = 0.5 * (re_left + oe_left)
+    e_right = 0.5 * (re_right + oe_right)
 
     # Merge errrors
     e_all = np.concatenate((e_left, e_right))
