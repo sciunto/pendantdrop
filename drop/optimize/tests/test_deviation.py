@@ -42,7 +42,7 @@ def test_verticalsquared_distance_ShiftedLines():
 
 def test_shortest_squared_distance_ShiftedLines():
     """
-    Note: this tests relies on successful radial and vertical dist.
+    Note: this test relies on successful radial and vertical dist.
     """
 
     a = 2
