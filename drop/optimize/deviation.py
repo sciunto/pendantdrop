@@ -192,20 +192,22 @@ def _orthogonal_squared_distance(R, Z, R_edges, Z_edges):
     R_theo_interpolator = interp1d(Z, R, kind='linear',
                                    fill_value='extrapolate')
 
-    def distance(z, R_edge, Z_edge, o_slope):
-        return (R_theo_interpolator(z) + o_slope * (z - Z_edge) - R_edge
+    def f_to_minimize(z, R_edge, Z_edge, o_slope):
+        return R_theo_interpolator(z) + o_slope * (z - Z_edge) - R_edge
 
-    def get_distance(el):
+    def get_distance2(el):
         r, z, o_slope = el
-        res = minimize(distance, z, args=(r, z), method=None)
-        return distance(res.x[0], r, z)
+        res = minimize(f_to_minimize, z, args=(r, z, o_slope), method=None)
+
+        Z_theo = res.x[0]
+        print(Z_theo)
+        R_theo = R_theo_interpolator(Z_theo)
+        dist = (Z_theo - z)**2 + (R_theo - r)**2
+        return dist
 
     # Do not consider first and last elements of the data
     # because we don't have the slope.
-    all_dist = [get_distance(el) for el in np.column_stack((R_edges[1:-1],
-                                                            Z_edges[-1:-1),
-                                                            orthogonal_slope)]
-
+    all_dist = [get_distance2(el)  for el in zip(R_edges[1:-1], Z_edges[1:-1], orthogonal_slope)]
     return np.array(all_dist)
 
 

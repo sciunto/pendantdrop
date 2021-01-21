@@ -66,3 +66,33 @@ def test_shortest_squared_distance_ShiftedLines():
 
     res = deviation._shortest_squared_distance(X1, Y1, X2, Y2)
     assert_almost_equal(res, expected)
+
+
+def test_orthogonal_squared_distance_ShiftedLines():
+    """
+    Note: this test relies on successful radial and vertical dist.
+    """
+
+    a = 2
+    b = 0
+    shift = 10.2
+
+    X1 = np.linspace(0, 10, 10)
+    Y1 = a * X1 + b
+
+    X2 = X1.copy()
+    Y2 = Y1.copy() + shift
+
+    radial = deviation._radial_squared_distance(X1, Y1, X2, Y2)
+    radial = np.sqrt(radial[0])
+
+    vertical = deviation._vertical_squared_distance(X1, Y1, X2, Y2)
+    vertical = np.sqrt(vertical[0])
+
+    orthogonal = radial * np.sin(np.arctan(vertical / radial))
+    expected = np.full(10, orthogonal**2)
+
+    res = deviation._orthogonal_squared_distance(X1, Y1, X2, Y2)
+    print(res)
+    print(expected)
+    assert_almost_equal(res, expected)
