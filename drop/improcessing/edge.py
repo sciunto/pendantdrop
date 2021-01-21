@@ -6,6 +6,8 @@ from skimage.feature import peak_local_max, canny
 from skimage import measure
 from skimage.morphology import skeletonize
 
+from .circlemodel import CircleModelLinearized, CircleModel
+
 __all__ = ['detect_edges',
            'fit_circle_tip',
            'guess_angle',
@@ -143,7 +145,7 @@ def _fit_circle_tip_hough_transform(shape, R, Z):
     return center_Z, center_R, radius
 
 
-def _fit_circle_tip_ransac(shape, R, Z, *, debug=False, **kwargs):
+def _fit_circle_tip_ransac(shape, R, Z, *, linearized=False, debug=False, **kwargs):
     """
     Fit the tip of the drop with a circle by RANSAC.
 
@@ -157,6 +159,8 @@ def _fit_circle_tip_ransac(shape, R, Z, *, debug=False, **kwargs):
         Radial coordinates.
     Z : array
         Vertical coordinates.
+    linearized : boolean, optional
+        If ``True`` use a simplified linearized residual estimator.
     debug : boolean, optional
         If `True`, activate plots to visualize the fit.
     kwargs : dict, optional
@@ -167,6 +171,10 @@ def _fit_circle_tip_ransac(shape, R, Z, *, debug=False, **kwargs):
     parameters : tuple
         (center_Z, center_R, radius)
 
+    Notes
+    -----
+    See https://scipy-cookbook.readthedocs.io/items/Least_Squares_Circle.html
+    for details on the linearization.
     """
     # Default ransac parameters
     ransac_kwarg = {'min_samples': 6,
@@ -182,7 +190,11 @@ def _fit_circle_tip_ransac(shape, R, Z, *, debug=False, **kwargs):
 
     points = np.column_stack((R_cropped, Z_cropped))
 
-    model_robust, inliers = measure.ransac(points, measure.CircleModel,
+    if linearized:
+        model_robust, inliers = measure.ransac(points, CircleModelLinearized,
+                                           **ransac_kwarg)
+    else:
+        model_robust, inliers = measure.ransac(points, CircleModel,
                                            **ransac_kwarg)
 
     cy, cx, r = model_robust.params
@@ -216,7 +228,7 @@ def fit_circle_tip(shape, RZ_edges, *, method='ransac', debug=False, **kwargs):
     RZ_edges : tuple of array
         (Radial, Vertical) coordinates of the edge.
     method : str, optional
-        Name of the method: `ransac` or `hough`.
+        Name of the method: `ransac`, `ransac-lin` or `hough`.
     debug : boolean, optional
         If `True`, activate plots to visualize the fit.
     kwargs : dict, optional
@@ -226,10 +238,20 @@ def fit_circle_tip(shape, RZ_edges, *, method='ransac', debug=False, **kwargs):
     -------
     parameters : tuple
         (center_Z, center_R, radius)
+
+    Notes
+    -----
+    `ransac` and `ransac-lin` apply RANSAC fitting procedure without or with
+    a linear approximation in the residual. See
+    https://scipy-cookbook.readthedocs.io/items/Least_Squares_Circle.html
+    for details on the linearization.
+    `hough` applies the Hough transform to detect the circle.
     """
     R, Z = RZ_edges
     if method.lower() == 'ransac':
-        return _fit_circle_tip_ransac(shape, R, Z, debug=debug, **kwargs)
+        return _fit_circle_tip_ransac(shape, R, Z, debug=debug, linearized=False, **kwargs)
+    elif method.lower() == 'ransac-lin':
+        return _fit_circle_tip_ransac(shape, R, Z, debug=debug, linearized=True, **kwargs)
     elif method.lower() == 'hough':
         return _fit_circle_tip_hough_transform(shape, R, Z)
     else:
