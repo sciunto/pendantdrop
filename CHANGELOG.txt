@@ -3,6 +3,8 @@
 
 * Use a new ransac model for circles
 * Enhance dependancies management (#66)
+* Remove hough for circle detection
+* Remove canny for edge detection
 
 0.2.0 -- 2020-09-23
 ===================
