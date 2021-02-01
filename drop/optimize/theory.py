@@ -2,7 +2,7 @@
 import numpy as np
 import math
 
-from scipy.integrate import solve_ivp
+from scipy.integrate import odeint
 from joblib import Memory
 from drop.utils import rotate
 from appdirs import AppDirs
@@ -69,7 +69,7 @@ def theoretical_contour(bond_number, num_points=1e3, s_max=10):
         Bond number.
     num_points : scalar, optional
         Number of points used to compute the profile. These points are
-        evenly spaces from s=0 to s=s_max.
+        evenly spaced from s=0 to s=s_max.
     s_max : scalar, optional
         Maximum value for the curvilinear coordinate.
 
@@ -92,24 +92,24 @@ def theoretical_contour(bond_number, num_points=1e3, s_max=10):
     z_prime_0 = 0
     init = (phi_prime_0, r_prime_0, z_prime_0)
 
-    #from scipy.integrate import odeint
-    #solution = odeint(young_laplace_diff_equation,
-    #                  init, s_tilde,
-    #                  args=(bond_number,),
-    #                  tfirst=True)
+    solution = odeint(young_laplace_diff_equation,
+                      init, s_tilde,
+                      args=(bond_number,),
+                      tfirst=True)
     # NOTE: phi = solution[:, 0]
-    # R = solution[:, 1]
-    # Z = solution[:, 2]
+    R = solution[:, 1]
+    Z = solution[:, 2]
 
-    solution = solve_ivp(young_laplace_diff_equation,
-                         (0, s_max),
-                         init,
-                         t_eval=s_tilde,
-                         args=(bond_number,))
+    # solve_ivp is 20% slower than odeing
+    #solution = solve_ivp(young_laplace_diff_equation,
+    #                     (0, s_max),
+    #                     init,
+    #                     t_eval=s_tilde,
+    #                     args=(bond_number,))
 
-    # Note: phi = solution.y[0]
-    R = solution.y[1]
-    Z = solution.y[2]
+    ## Note: phi = solution.y[0]
+    #R = solution.y[1]
+    #Z = solution.y[2]
 
     return R, Z
 
