@@ -210,7 +210,7 @@ def guess_angle(edges, center_Z, center_R):
 
 def elbow_curve_ransac_residuals(get_surf_tension,
                                  min_residuals, max_residuals, num_residuals,
-                                 num_test=50, mode='lin',
+                                 num_test=10, mode='lin',
                                  **ransac_params):
     """
     Compute an elbow curve to help to choose the residual value in RANSAC.
@@ -254,7 +254,7 @@ def elbow_curve_ransac_residuals(get_surf_tension,
         =====
         The number of jobs is equal to the number of CPUs.
         """
-        gamma = Parallel(n_jobs=-1)(delayed(get_surf_tension)(False, **ransac_params) for i in range(num_test))
+        gamma = Parallel(n_jobs=-1)(delayed(get_surf_tension)(**ransac_params) for i in range(num_test))
         gamma = np.array(gamma)
         return gamma.std()
 
