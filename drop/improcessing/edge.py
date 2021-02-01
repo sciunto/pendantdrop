@@ -254,7 +254,7 @@ def elbow_curve_ransac_residuals(get_surf_tension,
         =====
         The number of jobs is equal to the number of CPUs.
         """
-        gamma = Parallel(n_jobs=-1)(delayed(get_surf_tension)(False, **ransac_params) for i in range(num_test))
+        gamma = Parallel(n_jobs=-1)(delayed(get_surf_tension)(**ransac_params) for i in range(num_test))
         gamma = np.array(gamma)
         return gamma.std()
 
