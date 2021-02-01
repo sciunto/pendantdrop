@@ -1,10 +1,11 @@
-0.2.1 --
+0.3.0 -- 2021-02-01
 ===================
 
 * Use a new ransac model for circles
 * Enhance dependancies management (#66)
 * Remove hough for circle detection
 * Remove canny for edge detection
+* Add function to determine the best residuals for RANSAC
 
 0.2.0 -- 2020-09-23
 ===================
