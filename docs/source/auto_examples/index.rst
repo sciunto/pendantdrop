@@ -11,6 +11,27 @@ Gallery
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Determination of RANSAC residuals">
+
+.. only:: html
+
+ .. figure:: /auto_examples/images/thumb/sphx_glr_plot_elbowcurve_thumb.png
+     :alt: Determination of RANSAC residuals
+
+     :ref:`sphx_glr_auto_examples_plot_elbowcurve.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/plot_elbowcurve
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Water pendant drop">
 
 .. only:: html
