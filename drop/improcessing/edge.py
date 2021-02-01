@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from skimage.feature import peak_local_max, canny
+from joblib import Parallel, delayed
 from skimage import measure
-from skimage.morphology import skeletonize
 
 from .circlemodel import CircleModelLinearized, CircleModel
 
@@ -50,7 +49,9 @@ def detect_edges(image, **kwargs):
     return edges, (R_edges, Z_edges)
 
 
-def _fit_circle_tip_ransac(shape, R, Z, *, linearized=False, debug=False, **kwargs):
+def _fit_circle_tip_ransac(shape, R, Z, *,
+                           linearized=False, debug=False,
+                           **kwargs):
     """
     Fit the tip of the drop with a circle by RANSAC.
 
@@ -97,10 +98,10 @@ def _fit_circle_tip_ransac(shape, R, Z, *, linearized=False, debug=False, **kwar
 
     if linearized:
         model_robust, inliers = measure.ransac(points, CircleModelLinearized,
-                                           **ransac_kwarg)
+                                               **ransac_kwarg)
     else:
         model_robust, inliers = measure.ransac(points, CircleModel,
-                                           **ransac_kwarg)
+                                               **ransac_kwarg)
 
     cy, cx, r = model_robust.params
 
@@ -153,9 +154,13 @@ def fit_circle_tip(shape, RZ_edges, *, method='ransac', debug=False, **kwargs):
     """
     R, Z = RZ_edges
     if method.lower() == 'ransac':
-        return _fit_circle_tip_ransac(shape, R, Z, debug=debug, linearized=False, **kwargs)
+        return _fit_circle_tip_ransac(shape, R, Z,
+                                      debug=debug, linearized=False,
+                                      **kwargs)
     elif method.lower() == 'ransac-lin':
-        return _fit_circle_tip_ransac(shape, R, Z, debug=debug, linearized=True, **kwargs)
+        return _fit_circle_tip_ransac(shape, R, Z,
+                                      debug=debug, linearized=True,
+                                      **kwargs)
     else:
         raise ValueError('Wrong parameter value for `method`.')
 
@@ -203,53 +208,61 @@ def guess_angle(edges, center_Z, center_R):
     return theta
 
 
-# def guess_parameters(edges, RZ_edges, tip, center_Z, center_R):
-#    """
-#    Guess values for the angle and the tip position.
-#
-#    Parameters
-#    ----------
-#    edges : boolean image
-#        Image containing the edges to fit.
-#    RZ_edges : tuple of array
-#        (Radial, Vertical) coordinates of the edge.
-#    Z_edges : array
-#        Vertical coordinates of the edge.
-#    tip :
-#
-#    center_Z :
-#
-#    center_R :
-#
-#
-#    Returns
-#    -------
-#    guessed_parameters : tuple
-#        (theta, tipx, tipy)
-#    """
-#    c_center = np.array((center_R, center_Z))
-#    R_edges, Z_edges = RZ_edges
-#
-#    # assume orientation base at bottom of image
-#    pixels_on_baseline = np.where(edges[-1, :] == True)
-#    baseline_center = (np.mean((pixels_on_baseline[0],
-#                                pixels_on_baseline[-1])),
-#                       edges.shape[0]-1)
-#
-#    distance_base_to_center = baseline_center - c_center
-#    hyp = np.linalg.norm(distance_base_to_center)
-#    opp = np.abs(baseline_center[0] - c_center[0])
-#
-#    theta = np.arcsin(opp/hyp)
-#
-#    shift = (edges.shape[0]-1-tip[1]) * np.tan(np.abs(theta))
-#    if center_R > baseline_center[0] and theta > 0:
-#        guess_tipy = baseline_center[0] + shift
-#    else:
-#        guess_tipy = baseline_center[0] - shift
-#
-#    ind_min = np.argmin(np.abs(R_edges - guess_tipy))
-#    guess_tipx = Z_edges[ind_min]
-#    guess_tipy = R_edges[ind_min]
-#
-#    return theta, guess_tipx, guess_tipy
+def elbow_curve_ransac_residuals(get_surf_tension,
+                                 min_residuals, max_residuals, num_residuals,
+                                 num_test=50, mode='lin',
+                                 **ransac_params):
+    """
+    Compute an elbow curve to help to choose the residual value in RANSAC.
+
+    Parameters
+    ==========
+    get_surf_tension : callable
+        Function returning the surface tension.
+        `ransac_params` are passed to it.
+    min_residuals : float
+        Lowest tested residual value.
+    max_residuals : float
+        Highest tested residual value.
+    num_residuals : int
+        Number of tested values.
+    num_test : int, optional
+        Number of trials for each tested value.
+    mode : string, optional
+        Specify the spacing mode. Either `lin` or `log`.
+    ransac_params : dict, optional
+        Arguments passed to the ransac function.
+
+    Returns
+    =======
+    (residuals, std_surface_tension)
+
+    """
+
+    if mode.lower() == 'log':
+        residuals = np.geomspace(min_residuals, max_residuals, num_residuals)
+    elif mode.lower() == 'lin':
+        residuals = np.linspace(min_residuals, max_residuals, num_residuals)
+    else:
+        raise ValueError('Wrong `mode` value. Must be `lin` or `log`.')
+
+    def compute_surf_tension_stat(get_surf_tension, num_test, **ransac_params):
+        """
+        Compute the surface tension std deviation over num_test.
+
+        Notes
+        =====
+        The number of jobs is equal to the number of CPUs.
+        """
+        gamma = Parallel(n_jobs=-1)(delayed(get_surf_tension)(False, **ransac_params) for i in range(num_test))
+        gamma = np.array(gamma)
+        return gamma.std()
+
+    gamma_std = []
+    for residual in residuals:
+        ransac_params.update({'residual_threshold': residual})
+        gamma_std.append(compute_surf_tension_stat(get_surf_tension, num_test,
+                                                   **ransac_params))
+
+    std_surface_tension = np.array(gamma_std)
+    return residuals, std_surface_tension
