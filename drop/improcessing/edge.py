@@ -216,7 +216,7 @@ def elbow_curve_ransac_residuals(get_surf_tension,
     Compute an elbow curve to help to choose the residual value in RANSAC.
 
     Parameters
-    ==========
+    ----------
     get_surf_tension : callable
         Function returning the surface tension.
         `ransac_params` are passed to it.
@@ -234,7 +234,7 @@ def elbow_curve_ransac_residuals(get_surf_tension,
         Arguments passed to the ransac function.
 
     Returns
-    =======
+    -------
     (residuals, std_surface_tension)
 
     """
@@ -251,7 +251,7 @@ def elbow_curve_ransac_residuals(get_surf_tension,
         Compute the surface tension std deviation over num_test.
 
         Notes
-        =====
+        -----
         The number of jobs is equal to the number of CPUs.
         """
         gamma = Parallel(n_jobs=-1)(delayed(get_surf_tension)(**ransac_params) for i in range(num_test))
