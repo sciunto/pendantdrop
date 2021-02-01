@@ -36,6 +36,7 @@ extensions = [
         'sphinx.ext.githubpages',
         'sphinx.ext.mathjax',
         'sphinx.ext.viewcode',
+        'sphinx_gallery.gen_gallery',
         'numpydoc',
         'doi_role',
 ]
@@ -63,3 +64,11 @@ html_theme = 'alabaster'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+
+# -- Sphinx Gallery ---------------------------------------------------------
+
+sphinx_gallery_conf = {
+     'examples_dirs': '../examples',   # path to your example scripts
+     'gallery_dirs': 'auto_examples',  # path to where to save gallery generated output
+}

@@ -17,16 +17,23 @@ class BaseModel(object):
 class CircleModelLinearized(BaseModel):
 
     """Total least squares estimator for 2D circles.
+
     The functional model of the circle is::
+
         r**2 = (x - xc)**2 + (y - yc)**2
+
     This estimator minimizes the squared distances from all points to the
     circle::
+
         min{ sum((r - sqrt((x_i - xc)**2 + (y_i - yc)**2))**2) }
+
     A minimum number of 3 points is required to solve for the parameters.
+
     Attributes
     ----------
     params : tuple
         Circle model parameters in the following order `xc`, `yc`, `r`.
+
     Examples
     --------
     >>> t = np.linspace(0, 2 * np.pi, 25)
@@ -44,10 +51,12 @@ class CircleModelLinearized(BaseModel):
 
     def estimate(self, data):
         """Estimate circle model from data using total least squares.
+
         Parameters
         ----------
         data : (N, 2) array
             N points with ``(x, y)`` coordinates, respectively.
+
         Returns
         -------
         success : bool
@@ -83,10 +92,12 @@ class CircleModelLinearized(BaseModel):
     def residuals(self, data):
         """Determine residuals of data to model.
         For each point the shortest distance to the circle is returned.
+
         Parameters
         ----------
         data : (N, 2) array
             N points with ``(x, y)`` coordinates, respectively.
+
         Returns
         -------
         residuals : (N, ) array
@@ -130,10 +141,14 @@ class CircleModel(BaseModel):
 
     """Total least squares estimator for 2D circles.
     The functional model of the circle is::
+
         r**2 = (x - xc)**2 + (y - yc)**2
+
     This estimator minimizes the squared distances from all points to the
     circle::
+
         min{ sum((r - sqrt((x_i - xc)**2 + (y_i - yc)**2))**2) }
+
     A minimum number of 3 points is required to solve for the parameters.
 
     Attributes
@@ -163,10 +178,12 @@ class CircleModel(BaseModel):
 
     def estimate(self, data):
         """Estimate circle model from data using total least squares.
+
         Parameters
         ----------
         data : (N, 2) array
             N points with ``(x, y)`` coordinates, respectively.
+
         Returns
         -------
         success : bool
@@ -213,11 +230,14 @@ class CircleModel(BaseModel):
 
     def residuals(self, data):
         """Determine residuals of data to model.
+
         For each point the shortest distance to the circle is returned.
+
         Parameters
         ----------
         data : (N, 2) array
             N points with ``(x, y)`` coordinates, respectively.
+
         Returns
         -------
         residuals : (N, ) array
@@ -235,6 +255,7 @@ class CircleModel(BaseModel):
 
     def predict_xy(self, t, params=None):
         """Predict x- and y-coordinates using the estimated model.
+
         Parameters
         ----------
         t : array
@@ -242,6 +263,7 @@ class CircleModel(BaseModel):
             x-axis to positive y-axis in a right-handed system.
         params : (3, ) array, optional
             Optional custom parameter set.
+
         Returns
         -------
         xy : (..., 2) array

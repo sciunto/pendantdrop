@@ -20,6 +20,7 @@ Contents:
 
    introduction.rst
    install.rst
+   auto_examples/index
    modules.rst
 
 
