@@ -31,8 +31,11 @@ author = 'F. Boulogne and other contributors'
 # ones.
 extensions = [
         'sphinx.ext.autodoc',
-        'autoapi.extension',
         'sphinx.ext.mathjax',
+        'sphinx.ext.intersphinx',
+        'sphinx.ext.githubpages',
+        'sphinx.ext.mathjax',
+        'sphinx.ext.viewcode',
         'numpydoc',
         'doi_role',
 ]

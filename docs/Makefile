@@ -28,4 +28,5 @@ clean:
 all: html
 
 html:
+	sphinx-apidoc -f -o source  ../drop
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

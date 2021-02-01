@@ -5,10 +5,29 @@
 
 Welcome to PendantDrop's documentation!
 =======================================
+:Author: François Boulogne and other contributors
 :Devel: `github.com project <https://github.com/sciunto-org/pendantdrop>`_
+:Bugs: `github <https://github.com/sciunto-org/pendantdrop/issues>`_
 :Generated: |today|
+:License: GPL
+
+
+Contents:
 
 .. toctree::
    :maxdepth: 2
+   :caption: Contents:
+
+   introduction.rst
+   install.rst
+   modules.rst
 
 
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
