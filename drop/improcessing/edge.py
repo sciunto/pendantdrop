@@ -9,6 +9,7 @@ from .circlemodel import CircleModelLinearized, CircleModel
 __all__ = ['detect_edges',
            'fit_circle_tip',
            'guess_angle',
+           'elbow_curve_ransac_residuals',
            ]
 
 
