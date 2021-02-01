@@ -14,11 +14,11 @@ from scipy.optimize import minimize
 from drop.io import load_image
 from drop.improcessing import fit_circle_tip, detect_edges, guess_angle
 from drop.optimize import (young_laplace,
-                               deviation_edge_model_simple,
-                               deviation_edge_model_full)
+                           deviation_edge_model_simple,
+                           deviation_edge_model_full)
 
 
-from drop.optimize.deviation import shortest_RMS, radial_RMS
+from drop.optimize.deviation import radial_RMS
 from drop.improcessing import worthington
 from drop.utils import print_parameters
 
@@ -44,8 +44,11 @@ theta = guess_angle(edges, center_Z, center_R)
 
 # Note that below the method method='SLSQP' can be used also.
 
-# Step 1: consider only the surface tension
-# as it is not guessed so far
+######################################################################
+# Step 1
+# ------
+#
+# Consider only the surface tension as a varying parameter.
 print_parameters('Initial parameters',
                  initial_surface_tension,
                  theta,
@@ -75,7 +78,13 @@ print_parameters('Step 1',
                  RMS=res.fun)
 
 ini_variables = np.array((initial_surface_tension))
-# Step 2: consider all the parameters
+
+######################################################################
+# Step 2
+# ------
+#
+# Consider all the parameters in the minization
+
 ini_variables2 = np.array((guessed_surface_tension,
                            theta, center_R, center_Z, radius,))
 param_bounds = ((guessed_surface_tension-1e-2, guessed_surface_tension+1e-2),
@@ -104,13 +113,16 @@ print_parameters('Step 2',
                  optimal_variables[4],
                  RMS=res.fun)
 
-# Plot
+######################################################################
+# Step 3
+# ------
+#
+# Plot the result.
+
 RZ_model = young_laplace(*optimal_variables, fluid_density,
                          calib, RZ_edges=RZ_edges, num_points=1e4)
 
-#oRMS = shortest_RMS(RZ_model, RZ_edges)
 rRMS = radial_RMS(RZ_model, RZ_edges)
-#print(f'OrthoRMS: {oRMS}, RadialRMS {rRMS}')
 
 
 wo_number = worthington(edges, calib, surface_tension, fluid_density)
